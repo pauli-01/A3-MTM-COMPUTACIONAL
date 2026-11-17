@@ -7,7 +7,13 @@ const anterior = document.querySelector("#anterior");
 const proximo = document.querySelector("#proximo");
 const progresso = document.querySelector("#progresso");
 const imprimir = document.querySelector("#imprimir");
+const abrirSite = document.querySelector("#abrir-site");
 let indiceAtual = 0;
+
+// Quando os slides vêm do servidor, a demonstração usa o mesmo endereço.
+if (window.location.protocol === "http:" || window.location.protocol === "https:") {
+  abrirSite.href = "/";
+}
 
 // Mantém um slide visível na tela e anuncia sua posição.
 function mostrarSlide(indice, moverFoco) {
@@ -675,7 +681,7 @@ for i in range(linhas_a):
             <li>Conferir a matriz C e os quatro passos.</li>
             <li>Alterar B para 2 linhas e observar o aviso.</li>
           </ol>
-          <a class="acao" href="http://127.0.0.1:8000/" target="_blank" rel="noopener">Abrir o site local em outra aba</a>
+          <a class="acao" id="abrir-site" href="http://127.0.0.1:8000/" target="_blank" rel="noopener">Abrir o site em outra aba</a>
         </div>
         <figure>
           <figcaption>C · Resultado esperado</figcaption>
@@ -830,6 +836,51 @@ def multiplicar_matrizes(matriz_a, matriz_b):
         passos.append(linha_passos)
     return resultado, passos
 
+===== hospedagem.py =====
+"""Adaptador WSGI para hospedar o site com Gunicorn."""
+
+from http import HTTPStatus
+
+from servidor import responder_calculo, resposta_json, servir_arquivo
+
+
+def aplicacao(ambiente, iniciar_resposta):
+    # WSGI fornece o método, a rota, os cabeçalhos e o corpo da requisição.
+    metodo = ambiente["REQUEST_METHOD"]
+    rota = ambiente["PATH_INFO"]
+
+    if metodo in ("GET", "HEAD"):
+        status, tipo, conteudo = servir_arquivo(rota)
+    elif metodo == "POST":
+        tipo_entrada = ambiente.get("CONTENT_TYPE", "").split(";", 1)[0].strip().lower()
+        status, tipo, conteudo = responder_calculo(
+            rota, tipo_entrada, ambiente.get("CONTENT_LENGTH"), ambiente["wsgi.input"].read
+        )
+    else:
+        status, tipo, conteudo = resposta_json(405, {"erro": "Método não permitido."})
+
+    cabecalhos = [
+        ("Content-Type", f"{tipo}; charset=utf-8"),
+        ("Content-Length", str(len(conteudo))),
+        ("X-Content-Type-Options", "nosniff"),
+    ]
+    if status == 405:
+        cabecalhos.append(("Allow", "GET, HEAD, POST"))
+    iniciar_resposta(f"{status} {HTTPStatus(status).phrase}", cabecalhos)
+    if metodo == "HEAD":
+        return []
+    return [conteudo]
+
+===== render.yaml =====
+services:
+  - type: web
+    name: a3-mtm-computacional
+    runtime: python
+    plan: free
+    buildCommand: python -m pip install gunicorn==27.0.1
+    startCommand: gunicorn --bind 0.0.0.0:$PORT hospedagem:aplicacao
+    healthCheckPath: /
+
 ===== servidor.py =====
 """Servidor HTTP local para a interface de multiplicação."""
 
@@ -858,8 +909,71 @@ ARQUIVOS = {
 }
 
 
+def resposta_json(status, dados):
+    conteudo = json.dumps(dados, ensure_ascii=False, allow_nan=False)
+    return status, "application/json", conteudo.encode("utf-8")
+
+
+def servir_arquivo(rota):
+    if rota not in ARQUIVOS:
+        return resposta_json(404, {"erro": "Página não encontrada."})
+
+    caminho, tipo = ARQUIVOS[rota]
+    try:
+        conteudo = (PASTA_PROJETO / caminho).read_bytes()
+    except OSError:
+        return resposta_json(500, {"erro": "Não foi possível abrir o arquivo."})
+    return 200, tipo, conteudo
+
+
+def responder_calculo(rota, tipo, tamanho, ler_corpo):
+    if rota != "/api/calcular":
+        return resposta_json(404, {"erro": "Endereço de cálculo não encontrado."})
+    if tipo != "application/json":
+        return resposta_json(415, {"erro": "Envie os dados no formato JSON."})
+
+    # Confere o tamanho antes de ler qualquer dado da requisição.
+    try:
+        tamanho = int(tamanho)
+    except (ValueError, TypeError):
+        tamanho = 0
+    if tamanho <= 0:
+        return resposta_json(400, {"erro": "Tamanho da requisição inválido."})
+    if tamanho > LIMITE_REQUISICAO:
+        return resposta_json(413, {"erro": "Requisição muito grande."})
+
+    try:
+        corpo = ler_corpo(tamanho)
+        if len(corpo) != tamanho:
+            raise ValueError("Corpo incompleto")
+        dados = json.loads(corpo.decode("utf-8"))
+    except (ValueError, RecursionError):
+        return resposta_json(400, {"erro": "O conteúdo enviado não é um JSON válido."})
+    if not isinstance(dados, dict) or dados.keys() != {"a", "b"}:
+        return resposta_json(400, {"erro": "Envie as matrizes A e B."})
+
+    try:
+        resultado, passos = multiplicar_matrizes(dados["a"], dados["b"])
+    except ValueError as erro:
+        return resposta_json(400, {"erro": str(erro)})
+
+    # Preserva no navegador os dígitos exibidos pelo Python.
+    resultado_formatado = []
+    for linha in resultado:
+        linha_formatada = []
+        for valor in linha:
+            linha_formatada.append(formatar_numero(valor))
+        resultado_formatado.append(linha_formatada)
+
+    return resposta_json(200, {
+        "resultado": resultado,
+        "resultado_formatado": resultado_formatado,
+        "passos": passos,
+    })
+
+
 class ServidorMatrizes(BaseHTTPRequestHandler):
-    """Recebe as requisições do navegador e envia as respostas HTTP."""
+    """Recebe as requisições do navegador no modo local."""
 
     def responder(self, status, tipo, conteudo):
         self.send_response(status)
@@ -868,79 +982,18 @@ class ServidorMatrizes(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(conteudo)
 
-    def responder_json(self, status, dados):
-        conteudo = json.dumps(dados, ensure_ascii=False, allow_nan=False)
-        self.responder(status, "application/json", conteudo.encode("utf-8"))
-
     def do_GET(self):
         rota = self.path.partition("?")[0]
-        if rota not in ARQUIVOS:
-            self.responder_json(404, {"erro": "Página não encontrada."})
-            return
-
-        caminho, tipo = ARQUIVOS[rota]
-        try:
-            conteudo = (PASTA_PROJETO / caminho).read_bytes()
-        except OSError:
-            self.responder_json(500, {"erro": "Não foi possível abrir o arquivo."})
-            return
-        self.responder(200, tipo, conteudo)
+        self.responder(*servir_arquivo(rota))
 
     def do_POST(self):
-        if self.path != "/api/calcular":
-            self.responder_json(404, {"erro": "Endereço de cálculo não encontrado."})
-            return
-        if self.headers.get_content_type() != "application/json":
-            self.responder_json(415, {"erro": "Envie os dados no formato JSON."})
-            return
-
-        # Limita o corpo antes da leitura e retorna erros em linguagem simples.
         tamanhos = self.headers.get_all("Content-Length", [])
-        if len(tamanhos) != 1 or self.headers.get("Transfer-Encoding"):
-            self.responder_json(400, {"erro": "Tamanho da requisição inválido."})
-            return
-        try:
-            tamanho = int(tamanhos[0])
-        except ValueError:
-            tamanho = 0
-        if tamanho <= 0:
-            self.responder_json(400, {"erro": "Tamanho da requisição inválido."})
-            return
-        if tamanho > LIMITE_REQUISICAO:
-            self.responder_json(413, {"erro": "Requisição muito grande."})
-            return
-
-        try:
-            corpo = self.rfile.read(tamanho)
-            if len(corpo) != tamanho:
-                raise ValueError("Corpo incompleto")
-            dados = json.loads(corpo.decode("utf-8"))
-        except (ValueError, RecursionError):
-            self.responder_json(400, {"erro": "O conteúdo enviado não é um JSON válido."})
-            return
-        if not isinstance(dados, dict) or dados.keys() != {"a", "b"}:
-            self.responder_json(400, {"erro": "Envie as matrizes A e B."})
-            return
-
-        try:
-            resultado, passos = multiplicar_matrizes(dados["a"], dados["b"])
-        except ValueError as erro:
-            self.responder_json(400, {"erro": str(erro)})
-            return
-
-        # Preserva no navegador os dígitos exibidos pelo Python.
-        resultado_formatado = []
-        for linha in resultado:
-            linha_formatada = []
-            for valor in linha:
-                linha_formatada.append(formatar_numero(valor))
-            resultado_formatado.append(linha_formatada)
-
-        self.responder_json(200, {
-            "resultado": resultado,
-            "resultado_formatado": resultado_formatado,
-            "passos": passos,
-        })
+        tamanho = None
+        if len(tamanhos) == 1 and not self.headers.get("Transfer-Encoding"):
+            tamanho = tamanhos[0]
+        self.responder(*responder_calculo(
+            self.path, self.headers.get_content_type(), tamanho, self.rfile.read
+        ))
 
 
 def criar_servidor(porta=PORTA):
@@ -2225,6 +2278,87 @@ class TesteTerminal(unittest.TestCase):
         self.assertEqual(saida.count("Matriz C (1 × 1)"), 2)
         self.assertRegex(saida, r"\[\s*-7,5\s*\]")
         self.assertRegex(saida, r"\[\s*8\s*\]")
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+===== tests/test_hospedagem.py =====
+import json
+import unittest
+from io import BytesIO
+from wsgiref.util import setup_testing_defaults
+from wsgiref.validate import validator
+
+from hospedagem import aplicacao
+
+
+class TesteHospedagem(unittest.TestCase):
+    def requisicao(self, metodo, rota, corpo=b"", tipo="application/json"):
+        # Simula o ambiente que um servidor WSGI entrega à aplicação.
+        ambiente = {
+            "REQUEST_METHOD": metodo,
+            "SCRIPT_NAME": "",
+            "PATH_INFO": rota,
+            "QUERY_STRING": "",
+            "CONTENT_TYPE": tipo,
+            "CONTENT_LENGTH": str(len(corpo)),
+            "wsgi.input": BytesIO(corpo),
+        }
+        setup_testing_defaults(ambiente)
+
+        resposta = {}
+        blocos = []
+
+        def iniciar_resposta(status, cabecalhos, exc_info=None):
+            resposta["status"] = int(status.split()[0])
+            resposta["cabecalhos"] = dict(cabecalhos)
+            return blocos.append
+
+        # O validador também verifica o contrato WSGI enquanto lê a resposta.
+        conteudo = validator(aplicacao)(ambiente, iniciar_resposta)
+        try:
+            blocos.extend(conteudo)
+        finally:
+            conteudo.close()
+        return resposta["status"], resposta["cabecalhos"], b"".join(blocos)
+
+    def verificar_erro(self, status_esperado, metodo, rota, corpo=b"", tipo="application/json"):
+        status, cabecalhos, resposta = self.requisicao(metodo, rota, corpo, tipo)
+        self.assertEqual(status, status_esperado)
+        self.assertIn("application/json", cabecalhos["Content-Type"])
+        mensagem = json.loads(resposta)["erro"]
+        self.assertIsInstance(mensagem, str)
+        self.assertTrue(mensagem.strip())
+        self.assertNotIn("Traceback", mensagem)
+
+    def test_entrega_pagina_principal(self):
+        status, cabecalhos, resposta = self.requisicao("GET", "/")
+        self.assertEqual(status, 200)
+        self.assertIn("text/html", cabecalhos["Content-Type"])
+        self.assertIn("Multiplicação de Matrizes", resposta.decode("utf-8"))
+
+    def test_calcula_exemplo_e_entrega_passos(self):
+        dados = {"a": [[1, 2, 3], [4, 5, 6]], "b": [[7, 8], [9, 10], [11, 12]]}
+        corpo = json.dumps(dados).encode("utf-8")
+        status, cabecalhos, resposta = self.requisicao("POST", "/api/calcular", corpo)
+        self.assertEqual(status, 200)
+        self.assertIn("application/json", cabecalhos["Content-Type"])
+        dados = json.loads(resposta)
+        self.assertEqual(dados["resultado"], [[58, 64], [139, 154]])
+        self.assertEqual(dados["resultado_formatado"], [["58", "64"], ["139", "154"]])
+        self.assertEqual(dados["passos"][0][0], "C[1,1] = (1 × 7) + (2 × 9) + (3 × 11) = 58")
+
+    def test_rejeita_tipo_de_conteudo_invalido(self):
+        self.verificar_erro(415, "POST", "/api/calcular", b"matrizes", "text/plain")
+
+    def test_rejeita_json_invalido(self):
+        for corpo in (b"{", b"\xff", b'{"a": [[1]]}'):
+            with self.subTest(corpo=corpo):
+                self.verificar_erro(400, "POST", "/api/calcular", corpo)
+
+    def test_rejeita_rota_inexistente(self):
+        self.verificar_erro(404, "GET", "/nao-existe")
 
 
 if __name__ == "__main__":

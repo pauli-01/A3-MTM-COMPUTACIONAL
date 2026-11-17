@@ -9,6 +9,7 @@ Se A é **m × n** e B é **n × p**, C tem **m × p**. As dimensões internas, 
 | Arquivo ou pasta | Responsabilidade |
 | --- | --- |
 | `calculo.py` | Prepara os valores, verifica as matrizes e calcula C. Também monta o texto da conta de cada célula. |
+| `hospedagem.py` e `render.yaml` | Permitem servir o mesmo site em um endereço público. |
 | `terminal.py` | Lê as matrizes pelo teclado, efetua o mesmo cálculo manual e imprime A, B e C. Pode ser copiado e executado sozinho. |
 | `servidor.py` | Entrega os arquivos do site e dos slides e liga a interface à função em Python. |
 | `site/index.html` | Estrutura da página, controles, áreas para matrizes e passos. |
@@ -130,11 +131,13 @@ Use A = `[[2, 1], [1, 3]]` para as quantidades e B = `[[10, 12], [5, 4]]` para o
 
 1. O formulário oferece dimensões e uma grade para cada matriz. O JavaScript lê as células e prepara um objeto com duas listas de listas, `a` e `b`.
 2. O navegador envia as matrizes em JSON para `POST /api/calcular`. JSON é um formato de texto para trocar dados.
-3. `ServidorMatrizes.do_POST` verifica o formato, o tamanho e a estrutura do pedido. Em seguida chama `multiplicar_matrizes`. O backend valida as matrizes mesmo quando os dados chegam de fora do formulário.
-4. Se o cálculo terminar, `responder_json` envia `resultado`, `resultado_formatado` e `passos`. Os textos preservam a representação dos números produzida pelo Python quando o navegador lê o JSON. Se a entrada for inválida, a resposta inclui uma mensagem no campo `erro`.
+3. `ServidorMatrizes.do_POST` encaminha o pedido a `responder_calculo`, que verifica o endereço, o formato, o tamanho e a estrutura. Em seguida chama `multiplicar_matrizes`. O backend valida as matrizes mesmo quando os dados chegam de fora do formulário.
+4. Se o cálculo terminar, `resposta_json` prepara o envio de `resultado`, `resultado_formatado` e `passos`. Os textos preservam a representação dos números produzida pelo Python quando o navegador lê o JSON. Se a entrada for inválida, a resposta inclui uma mensagem no campo `erro`.
 5. O JavaScript mostra A e B, seus tamanhos, a matriz C e as contas devolvidas pelo Python. Se ocorrer um erro, mostra a mensagem no formulário.
 
-`do_GET` entrega os arquivos do site e da apresentação por caminhos predefinidos. `criar_servidor` inicia a escuta no endereço local, e `principal` mantém o servidor em execução até **Ctrl+C**. `http.server`, `json` e `pathlib` cuidam da infraestrutura web, da troca de dados e da leitura dos arquivos. Confirme com o professor como a restrição do PDF sobre bibliotecas se aplica a esses módulos. O cálculo usa listas, controle de fluxo e aritmética básica.
+`do_GET` chama `servir_arquivo`, que entrega arquivos do site e da apresentação por caminhos predefinidos. `criar_servidor` inicia a escuta no endereço local, e `principal` mantém o servidor em execução até **Ctrl+C**. `http.server`, `json` e `pathlib` cuidam da infraestrutura web, da troca de dados e da leitura dos arquivos. Confirme com o professor como a restrição do PDF sobre bibliotecas se aplica a esses módulos. O cálculo usa listas, controle de fluxo e aritmética básica.
+
+Quando o site é hospedado, o Gunicorn recebe as conexões e chama `aplicacao` em `hospedagem.py`. A função recebe os dados da requisição no formato WSGI, usa `servir_arquivo` ou `responder_calculo` e devolve o status, os cabeçalhos e o corpo da resposta. O cálculo usa a mesma função Python em ambos os ambientes.
 
 ## Versão independente de terminal
 

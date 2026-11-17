@@ -8,7 +8,7 @@ Projeto da disciplina Matemática Computacional Aplicada, opção 3 (software ma
 - Um navegador atualizado com JavaScript para o site e os slides.
 - VS Code é opcional. Para abrir o projeto nele, use **Arquivo → Abrir Pasta** e selecione a pasta que contém `servidor.py`. No VS Code, use **Terminal → Novo Terminal** para rodar os comandos.
 
-O projeto funciona offline e dispensa instalação de pacotes. O núcleo matemático e o programa de terminal não importam módulos. O servidor usa a biblioteca padrão do Python para HTTP, JSON e leitura de arquivos. Confirme com o professor se o uso desses módulos de infraestrutura atende à redação do PDF sobre bibliotecas. O terminal pode ser usado separadamente para a demonstração.
+A execução local funciona offline e dispensa instalação de pacotes. O núcleo matemático e o programa de terminal não importam módulos. O servidor usa a biblioteca padrão do Python para HTTP, JSON e leitura de arquivos. Confirme com o professor se o uso desses módulos de infraestrutura atende à redação do PDF sobre bibliotecas. O terminal pode ser usado separadamente para a demonstração.
 
 ## Executar
 
@@ -29,6 +29,17 @@ No Windows, se o comando `py` estiver indisponível e `python --version` mostrar
 
 O servidor escuta apenas em `127.0.0.1`. GitHub Pages hospeda arquivos estáticos e não executa o servidor Python.
 
+## Publicar o site no Render
+
+O repositório inclui `render.yaml` para criar um serviço gratuito com Gunicorn. O Render executa o cálculo em Python e fornece a URL HTTPS para compartilhar.
+
+1. Entre no [painel do Render](https://dashboard.render.com/blueprints/new) e conecte sua conta do GitHub.
+2. Autorize o acesso ao repositório `pauli-01/A3-MTM-COMPUTACIONAL`, selecione a branch `main` e use o Blueprint `render.yaml`.
+3. Confirme que o plano é **Free**, aplique a configuração e aguarde o serviço ficar disponível.
+4. Abra a URL mostrada na página do serviço. Use **Carregar exemplo** e **Calcular** para verificar o cálculo antes de compartilhar a URL.
+
+A versão hospedada pode demorar para responder no primeiro acesso após um período de inatividade.
+
 ## Exemplo e formato de entrada
 
 ```text
@@ -48,6 +59,7 @@ Copie `A3-MTM-COMPUTACIONAL-entrega.zip` para o outro computador e extraia os ar
 | `calculo.py` | Validação, multiplicação e passos exibidos no site |
 | `servidor.py` | Servidor local e comunicação com a interface |
 | `terminal.py` | Programa independente de terminal |
+| `hospedagem.py` e `render.yaml` | Entrada WSGI e configuração da hospedagem pública opcional |
 | `site/` | HTML, CSS e JavaScript da calculadora |
 | `apresentacao/` | Slides offline com navegação por teclado e impressão |
 | `docs/` | [Explicação do código](docs/EXPLICACAO-CODIGO.md) e roteiro |

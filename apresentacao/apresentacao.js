@@ -6,7 +6,13 @@ const anterior = document.querySelector("#anterior");
 const proximo = document.querySelector("#proximo");
 const progresso = document.querySelector("#progresso");
 const imprimir = document.querySelector("#imprimir");
+const abrirSite = document.querySelector("#abrir-site");
 let indiceAtual = 0;
+
+// Quando os slides vêm do servidor, a demonstração usa o mesmo endereço.
+if (window.location.protocol === "http:" || window.location.protocol === "https:") {
+  abrirSite.href = "/";
+}
 
 // Mantém um slide visível na tela e anuncia sua posição.
 function mostrarSlide(indice, moverFoco) {

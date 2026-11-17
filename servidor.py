@@ -25,8 +25,71 @@ ARQUIVOS = {
 }
 
 
+def resposta_json(status, dados):
+    conteudo = json.dumps(dados, ensure_ascii=False, allow_nan=False)
+    return status, "application/json", conteudo.encode("utf-8")
+
+
+def servir_arquivo(rota):
+    if rota not in ARQUIVOS:
+        return resposta_json(404, {"erro": "Página não encontrada."})
+
+    caminho, tipo = ARQUIVOS[rota]
+    try:
+        conteudo = (PASTA_PROJETO / caminho).read_bytes()
+    except OSError:
+        return resposta_json(500, {"erro": "Não foi possível abrir o arquivo."})
+    return 200, tipo, conteudo
+
+
+def responder_calculo(rota, tipo, tamanho, ler_corpo):
+    if rota != "/api/calcular":
+        return resposta_json(404, {"erro": "Endereço de cálculo não encontrado."})
+    if tipo != "application/json":
+        return resposta_json(415, {"erro": "Envie os dados no formato JSON."})
+
+    # Confere o tamanho antes de ler qualquer dado da requisição.
+    try:
+        tamanho = int(tamanho)
+    except (ValueError, TypeError):
+        tamanho = 0
+    if tamanho <= 0:
+        return resposta_json(400, {"erro": "Tamanho da requisição inválido."})
+    if tamanho > LIMITE_REQUISICAO:
+        return resposta_json(413, {"erro": "Requisição muito grande."})
+
+    try:
+        corpo = ler_corpo(tamanho)
+        if len(corpo) != tamanho:
+            raise ValueError("Corpo incompleto")
+        dados = json.loads(corpo.decode("utf-8"))
+    except (ValueError, RecursionError):
+        return resposta_json(400, {"erro": "O conteúdo enviado não é um JSON válido."})
+    if not isinstance(dados, dict) or dados.keys() != {"a", "b"}:
+        return resposta_json(400, {"erro": "Envie as matrizes A e B."})
+
+    try:
+        resultado, passos = multiplicar_matrizes(dados["a"], dados["b"])
+    except ValueError as erro:
+        return resposta_json(400, {"erro": str(erro)})
+
+    # Preserva no navegador os dígitos exibidos pelo Python.
+    resultado_formatado = []
+    for linha in resultado:
+        linha_formatada = []
+        for valor in linha:
+            linha_formatada.append(formatar_numero(valor))
+        resultado_formatado.append(linha_formatada)
+
+    return resposta_json(200, {
+        "resultado": resultado,
+        "resultado_formatado": resultado_formatado,
+        "passos": passos,
+    })
+
+
 class ServidorMatrizes(BaseHTTPRequestHandler):
-    """Recebe as requisições do navegador e envia as respostas HTTP."""
+    """Recebe as requisições do navegador no modo local."""
 
     def responder(self, status, tipo, conteudo):
         self.send_response(status)
@@ -35,79 +98,18 @@ class ServidorMatrizes(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(conteudo)
 
-    def responder_json(self, status, dados):
-        conteudo = json.dumps(dados, ensure_ascii=False, allow_nan=False)
-        self.responder(status, "application/json", conteudo.encode("utf-8"))
-
     def do_GET(self):
         rota = self.path.partition("?")[0]
-        if rota not in ARQUIVOS:
-            self.responder_json(404, {"erro": "Página não encontrada."})
-            return
-
-        caminho, tipo = ARQUIVOS[rota]
-        try:
-            conteudo = (PASTA_PROJETO / caminho).read_bytes()
-        except OSError:
-            self.responder_json(500, {"erro": "Não foi possível abrir o arquivo."})
-            return
-        self.responder(200, tipo, conteudo)
+        self.responder(*servir_arquivo(rota))
 
     def do_POST(self):
-        if self.path != "/api/calcular":
-            self.responder_json(404, {"erro": "Endereço de cálculo não encontrado."})
-            return
-        if self.headers.get_content_type() != "application/json":
-            self.responder_json(415, {"erro": "Envie os dados no formato JSON."})
-            return
-
-        # Limita o corpo antes da leitura e retorna erros em linguagem simples.
         tamanhos = self.headers.get_all("Content-Length", [])
-        if len(tamanhos) != 1 or self.headers.get("Transfer-Encoding"):
-            self.responder_json(400, {"erro": "Tamanho da requisição inválido."})
-            return
-        try:
-            tamanho = int(tamanhos[0])
-        except ValueError:
-            tamanho = 0
-        if tamanho <= 0:
-            self.responder_json(400, {"erro": "Tamanho da requisição inválido."})
-            return
-        if tamanho > LIMITE_REQUISICAO:
-            self.responder_json(413, {"erro": "Requisição muito grande."})
-            return
-
-        try:
-            corpo = self.rfile.read(tamanho)
-            if len(corpo) != tamanho:
-                raise ValueError("Corpo incompleto")
-            dados = json.loads(corpo.decode("utf-8"))
-        except (ValueError, RecursionError):
-            self.responder_json(400, {"erro": "O conteúdo enviado não é um JSON válido."})
-            return
-        if not isinstance(dados, dict) or dados.keys() != {"a", "b"}:
-            self.responder_json(400, {"erro": "Envie as matrizes A e B."})
-            return
-
-        try:
-            resultado, passos = multiplicar_matrizes(dados["a"], dados["b"])
-        except ValueError as erro:
-            self.responder_json(400, {"erro": str(erro)})
-            return
-
-        # Preserva no navegador os dígitos exibidos pelo Python.
-        resultado_formatado = []
-        for linha in resultado:
-            linha_formatada = []
-            for valor in linha:
-                linha_formatada.append(formatar_numero(valor))
-            resultado_formatado.append(linha_formatada)
-
-        self.responder_json(200, {
-            "resultado": resultado,
-            "resultado_formatado": resultado_formatado,
-            "passos": passos,
-        })
+        tamanho = None
+        if len(tamanhos) == 1 and not self.headers.get("Transfer-Encoding"):
+            tamanho = tamanhos[0]
+        self.responder(*responder_calculo(
+            self.path, self.headers.get_content_type(), tamanho, self.rfile.read
+        ))
 
 
 def criar_servidor(porta=PORTA):
