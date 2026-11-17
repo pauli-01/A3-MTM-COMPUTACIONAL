@@ -1,0 +1,514 @@
+:root {
+    color-scheme: light;
+    --fundo: #f5f5ef;
+    --superficie: #fff;
+    --escuro: #172921;
+    --suave: #506356;
+    --verde: #285844;
+    --verde-claro: #d3ec90;
+    --fundo-verde: #edf3e6;
+    --borda: #d6dfd2;
+    --borda-campo: #768579;
+    --erro: #8b2c22;
+    --fundo-erro: #fcf0ed;
+    --mono: ui-monospace, "Courier New", monospace;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--fundo);
+    color: var(--escuro);
+    font: 1rem/1.55 system-ui, sans-serif;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+:focus-visible {
+    outline: 3px solid var(--verde);
+    outline-offset: 3px;
+}
+
+h1,
+h2,
+h3,
+p,
+figure {
+    margin: 0;
+}
+
+h2 {
+    font-size: clamp(1.45rem, 3vw, 1.85rem);
+    line-height: 1.2;
+}
+
+h3 {
+    font-size: 1.05rem;
+}
+
+.largura {
+    width: min(70rem, calc(100% - 2.5rem));
+    margin-inline: auto;
+}
+
+.pular {
+    position: absolute;
+    z-index: 2;
+    top: 0.5rem;
+    left: 0.5rem;
+    padding: 0.6rem 1rem;
+    transform: translateY(-160%);
+    color: var(--escuro);
+    background: var(--superficie);
+}
+
+.pular:focus {
+    transform: none;
+}
+
+.topo {
+    background: var(--superficie);
+    border-bottom: 1px solid var(--borda);
+}
+
+.barra,
+.marca,
+nav {
+    display: flex;
+    align-items: center;
+}
+
+.barra {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0 1rem;
+    padding-block: 0.4rem;
+}
+
+.marca {
+    min-height: 44px;
+    gap: 0.6rem;
+    font-weight: 700;
+}
+
+.marca-icone {
+    display: grid;
+    width: 1.9rem;
+    height: 1.9rem;
+    place-items: center;
+    border-radius: 0.4rem;
+    background: var(--escuro);
+}
+
+.marca-icone::before {
+    width: 0.3rem;
+    height: 0.3rem;
+    margin: 0 0.5rem 0.5rem 0;
+    border-radius: 1px;
+    background: var(--verde-claro);
+    box-shadow: 0.5rem 0 var(--verde-claro), 0 0.5rem var(--verde-claro),
+        0.5rem 0.5rem var(--verde-claro);
+    content: "";
+}
+
+nav {
+    gap: 1.1rem;
+}
+
+nav a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    color: var(--verde);
+    font-size: 0.9rem;
+    font-weight: 650;
+    text-underline-offset: 0.22em;
+}
+
+/* Grade de fundo e exemplo ilustrado. */
+.introducao {
+    color: var(--fundo);
+    background: var(--escuro);
+    background-image: radial-gradient(#476452 0.85px, transparent 0.85px);
+    background-size: 1.2rem 1.2rem;
+}
+
+.introducao-conteudo {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 2.5rem;
+    padding-block: clamp(2rem, 5vw, 3.75rem);
+}
+
+h1 {
+    font: 500 clamp(2.65rem, 5.6vw, 4.8rem)/1.03 Georgia, serif;
+    letter-spacing: -0.035em;
+}
+
+.introducao p {
+    max-width: 46ch;
+    margin-top: 1rem;
+    color: #e0e8dc;
+}
+
+.ilustracao {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.5rem, 1.8vw, 1.4rem);
+    padding: 1.4rem clamp(0.65rem, 2vw, 1.75rem);
+    border: 1px solid #647b6a;
+    border-radius: 0.9rem;
+    background: #20372b;
+    font-family: var(--mono);
+}
+
+.ilustracao-matriz {
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    grid-template-rows: auto 6.5rem auto;
+    gap: 0.35rem;
+}
+
+.ilustracao-matriz > span:first-child,
+.sinal {
+    color: var(--verde-claro);
+    font-weight: 700;
+}
+
+.ilustracao-matriz > span:last-child {
+    color: #e0e8dc;
+    font-size: 0.85rem;
+}
+
+/* Dois pseudo-elementos desenham os colchetes de cada matriz. */
+.colchetes {
+    position: relative;
+    width: max-content;
+    max-width: 100%;
+    padding-inline: 0.65rem;
+}
+
+.colchetes::before,
+.colchetes::after {
+    position: absolute;
+    inset-block: 0;
+    width: 0.35rem;
+    border-block: 2px solid currentColor;
+    content: "";
+    pointer-events: none;
+}
+
+.colchetes::before {
+    left: 0;
+    border-left: 2px solid currentColor;
+}
+
+.colchetes::after {
+    right: 0;
+    border-right: 2px solid currentColor;
+}
+
+.ilustracao td {
+    padding: 0.06rem 0.27rem;
+    text-align: right;
+}
+
+.destaque {
+    border-radius: 0.2rem;
+    color: var(--escuro);
+    background: var(--verde-claro);
+    font-weight: 700;
+}
+
+.conteudo {
+    display: grid;
+    gap: 2rem;
+    padding-block: 1.75rem 3rem;
+}
+
+#calculadora,
+#como-funciona {
+    scroll-margin-top: 1rem;
+}
+
+.texto-suave {
+    color: var(--suave);
+}
+
+#dica-valores {
+    margin-block: 0.35rem 1rem;
+}
+
+.paineis-matrizes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.painel {
+    min-width: 0;
+    margin: 0;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--borda);
+    border-radius: 0.85rem;
+    background: var(--superficie);
+}
+
+.painel-cabecalho,
+.painel-cabecalho h3,
+.painel-cabecalho h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.painel-cabecalho {
+    justify-content: space-between;
+}
+
+.letra-matriz,
+.dimensao {
+    display: inline-grid;
+    place-items: center;
+    border-radius: 0.35rem;
+    background: var(--fundo-verde);
+    color: var(--verde);
+    font: 700 0.9rem/1 var(--mono);
+}
+
+.letra-matriz {
+    width: 1.9rem;
+    height: 1.9rem;
+}
+
+.dimensao {
+    min-width: 3.5rem;
+    padding: 0.4rem 0.5rem;
+    white-space: nowrap;
+}
+
+.dimensoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 1rem;
+    margin-block: 0.75rem 0.5rem;
+}
+
+.dimensoes label {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+select,
+input,
+button {
+    min-height: 44px;
+    border: 1px solid var(--borda-campo);
+    border-radius: 0.45rem;
+    color: var(--escuro);
+    background: var(--superficie);
+    font: inherit;
+}
+
+select {
+    min-width: 3.4rem;
+    padding-inline: 0.5rem;
+}
+
+/* Apenas as matrizes largas ganham rolagem horizontal. */
+.matriz-rolagem {
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 0.4rem 0.25rem;
+}
+
+.matriz-rolagem .colchetes {
+    max-width: none;
+}
+
+.grade {
+    display: grid;
+    gap: 0.34rem;
+    padding-block: 0.25rem;
+}
+
+.linha-matriz {
+    display: flex;
+    gap: 0.34rem;
+}
+
+.grade input {
+    width: clamp(2.75rem, 6vw, 4.4rem);
+    padding: 0.25rem;
+    text-align: center;
+    font-family: var(--mono);
+}
+
+[aria-invalid="true"] {
+    box-shadow: inset 0 0 0 1px var(--erro);
+    border-color: var(--erro);
+}
+
+.controles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem 1rem;
+    margin-top: 0.85rem;
+}
+
+.compatibilidade {
+    font-weight: 600;
+    color: var(--verde);
+}
+
+.incompativel {
+    color: var(--erro);
+}
+
+.acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+button {
+    padding-inline: 0.95rem;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+button:hover {
+    background: var(--fundo-verde);
+}
+
+.primario {
+    border-color: var(--escuro);
+    color: var(--superficie);
+    background: var(--escuro);
+}
+
+.primario:hover {
+    background: var(--verde);
+}
+
+.terciario {
+    background: transparent;
+}
+
+button:disabled {
+    opacity: 0.75;
+    cursor: wait;
+}
+
+.alerta {
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    border-left: 3px solid var(--erro);
+    border-radius: 0.25rem;
+    color: var(--erro);
+    background: var(--fundo-erro);
+}
+
+.resultado {
+    padding-block: 1.25rem;
+}
+
+#situacao {
+    margin-top: 0.45rem;
+}
+
+.resultado-conteudo {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    align-items: start;
+    gap: 1rem;
+    margin-top: 0.85rem;
+}
+
+#valores-c {
+    font: 650 1.1rem/1.6 var(--mono);
+}
+
+#valores-c td {
+    padding: 0.25rem 0.55rem;
+    text-align: right;
+}
+
+#passos {
+    margin: 0.45rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+#passos li {
+    padding: 0.55rem 0.7rem;
+    border-bottom: 1px solid var(--borda);
+    border-radius: 0.25rem;
+    background: var(--fundo-verde);
+    font: 0.95rem/1.55 var(--mono);
+    overflow-wrap: anywhere;
+}
+
+#passos li + li {
+    margin-top: 0.35rem;
+}
+
+.conceitos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem 1.25rem;
+    margin-top: 1rem;
+}
+
+.conceitos article {
+    padding-top: 0.65rem;
+    border-top: 2px solid var(--verde);
+}
+
+.conceitos p {
+    margin-top: 0.25rem;
+    color: var(--suave);
+}
+
+/* Empilha os cartões quando há menos espaço na tela. */
+@media (max-width: 54rem) {
+    .paineis-matrizes,
+    .resultado-conteudo {
+        grid-template-columns: 1fr;
+    }
+
+    .introducao-conteudo {
+        gap: 1.25rem;
+    }
+}
+
+@media (max-width: 42rem) {
+    .largura {
+        width: calc(100% - 2rem);
+    }
+
+    .introducao-conteudo,
+    .conceitos {
+        grid-template-columns: 1fr;
+    }
+
+    .ilustracao {
+        display: none;
+    }
+
+    .painel {
+        padding-inline: 0.85rem;
+    }
+}

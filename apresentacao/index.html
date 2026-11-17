@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Multiplicação de Matrizes | Apresentação</title>
+  <link rel="stylesheet" href="estilo.css">
+  <script src="apresentacao.js" defer></script>
+</head>
+<body>
+  <main class="apresentacao" aria-label="Apresentação de Matemática Computacional Aplicada">
+    <section class="slide capa" aria-labelledby="titulo-1">
+      <p class="disciplina">Matemática Computacional Aplicada · Opção 3</p>
+      <h1 id="titulo-1" tabindex="-1">Multiplicação<br>de Matrizes</h1>
+      <p class="subtitulo">Um software matemático em Python</p>
+      <div class="integrantes">
+        <label for="integrante-1">Integrante 1</label>
+        <input id="integrante-1" type="text" autocomplete="off">
+        <label for="integrante-2">Integrante 2</label>
+        <input id="integrante-2" type="text" autocomplete="off">
+        <label for="integrante-3">Integrante 3 (opcional)</label>
+        <input id="integrante-3" type="text" autocomplete="off">
+      </div>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-2">
+      <h2 id="titulo-2" tabindex="-1">Quanto custa cada pedido?</h2>
+      <p class="subtitulo">Calcular e mostrar como cada total foi obtido.</p>
+      <div class="equacao aplicacao">
+        <figure>
+          <figcaption>A · Quantidades</figcaption>
+          <table class="matriz" aria-label="A: quantidades por pedido e produto">
+            <tbody><tr><td>2</td><td>1</td></tr><tr><td>1</td><td>3</td></tr></tbody>
+          </table>
+          <p>Pedidos × produtos</p>
+        </figure>
+        <span class="operador">×</span>
+        <figure>
+          <figcaption>B · Preços unitários</figcaption>
+          <table class="matriz" aria-label="B: preços em reais por produto e fornecedor">
+            <tbody><tr><td>10</td><td>12</td></tr><tr><td>5</td><td>4</td></tr></tbody>
+          </table>
+          <p>Produtos × fornecedores</p>
+        </figure>
+        <span class="operador">=</span>
+        <figure>
+          <figcaption>C · Totais em reais</figcaption>
+          <table class="matriz" aria-label="C: custo em reais por pedido e fornecedor">
+            <tbody><tr><td>25</td><td>28</td></tr><tr><td>25</td><td>24</td></tr></tbody>
+          </table>
+          <p>Pedidos × fornecedores</p>
+        </figure>
+      </div>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-3">
+      <h2 id="titulo-3" tabindex="-1">Linhas e colunas</h2>
+      <div class="duas-colunas">
+        <div>
+          <p class="destaque">A tem dimensão 2 × 3.</p>
+          <p>São 2 linhas horizontais e 3 colunas verticais.</p>
+          <p>Na posição (2, 3), está o número <strong>6</strong>.</p>
+        </div>
+        <table class="matriz matriz-grande" aria-label="A: duas linhas e três colunas">
+          <tbody>
+            <tr><td>1</td><td>2</td><td>3</td></tr>
+            <tr><td>4</td><td>5</td><td class="marcado">6</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-4">
+      <h2 id="titulo-4" tabindex="-1">Quando podemos multiplicar?</h2>
+      <p class="subtitulo">As colunas de A precisam coincidir com as linhas de B.</p>
+      <div class="equacao dimensoes">
+        <div><span>A</span><strong>m × <mark>n</mark></strong></div>
+        <span class="operador">×</span>
+        <div><span>B</span><strong><mark>n</mark> × p</strong></div>
+        <span class="operador">=</span>
+        <div><span>C</span><strong>m × p</strong></div>
+      </div>
+      <p class="nota"><strong>Exemplo</strong> (2 × 3) com (3 × 2) produz (2 × 2).</p>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-5">
+      <h2 id="titulo-5" tabindex="-1">Uma linha encontra uma coluna</h2>
+      <div class="equacao">
+        <figure>
+          <figcaption>A · Linha 1</figcaption>
+          <table class="matriz matriz-grande" aria-label="A: linha um em destaque">
+            <tbody>
+              <tr><td class="marcado">1</td><td class="marcado">2</td><td class="marcado">3</td></tr>
+              <tr><td>4</td><td>5</td><td>6</td></tr>
+            </tbody>
+          </table>
+        </figure>
+        <span class="operador">×</span>
+        <figure>
+          <figcaption>B · Coluna 1</figcaption>
+          <table class="matriz matriz-grande" aria-label="B: coluna um em destaque">
+            <tbody>
+              <tr><td class="marcado">7</td><td>8</td></tr>
+              <tr><td class="marcado">9</td><td>10</td></tr>
+              <tr><td class="marcado">11</td><td>12</td></tr>
+            </tbody>
+          </table>
+        </figure>
+      </div>
+      <p class="formula"><strong>C[1,1]</strong> = (1 × 7) + (2 × 9) + (3 × 11) = <strong>58</strong></p>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-6">
+      <h2 id="titulo-6" tabindex="-1">O cálculo em Python</h2>
+      <!-- Trecho simplificado do terminal. -->
+      <pre class="codigo" tabindex="0" aria-label="Trecho da versão de terminal"><code>resultado = []
+for i in range(linhas_a):
+    linha_resultado = []
+    for j in range(colunas_b):
+        acumulador = 0
+        for k in range(colunas_a):
+            acumulador += matriz_a[i][k] * matriz_b[k][j]
+        linha_resultado.append(acumulador)
+    resultado.append(linha_resultado)</code></pre>
+      <p class="nota">Cada posição do resultado começa com acumulador igual a zero.</p>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-7">
+      <h2 id="titulo-7" tabindex="-1">O papel dos três laços</h2>
+      <dl class="lacos">
+        <div><dt>i</dt><dd>Escolhe a linha de A e a linha que estamos montando em C.</dd></div>
+        <div><dt>j</dt><dd>Escolhe a coluna de B e a próxima posição dessa linha em C.</dd></div>
+        <div><dt>k</dt><dd>Percorre os pares de valores e acumula os seus produtos.</dd></div>
+      </dl>
+      <p class="nota">No Python, os índices começam em 0. Nos passos exibidos, começam em 1.</p>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-8">
+      <h2 id="titulo-8" tabindex="-1">Demonstração</h2>
+      <div class="duas-colunas demonstracao">
+        <div>
+          <ol>
+            <li>Carregar o exemplo e calcular.</li>
+            <li>Conferir a matriz C e os quatro passos.</li>
+            <li>Alterar B para 2 linhas e observar o aviso.</li>
+          </ol>
+          <a class="acao" href="http://127.0.0.1:8000/" target="_blank" rel="noopener">Abrir o site local em outra aba</a>
+        </div>
+        <figure>
+          <figcaption>C · Resultado esperado</figcaption>
+          <table class="matriz matriz-grande" aria-label="C: 58, 64 na linha um e 139, 154 na linha dois">
+            <tbody><tr><td>58</td><td>64</td></tr><tr><td>139</td><td>154</td></tr></tbody>
+          </table>
+        </figure>
+      </div>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-9">
+      <h2 id="titulo-9" tabindex="-1">Validações e testes</h2>
+      <div class="duas-colunas">
+        <div class="bloco">
+          <h3>O programa verifica</h3>
+          <ul>
+            <li>Dimensões de 1 a 6 e compatibilidade</li>
+            <li>Linhas do mesmo tamanho</li>
+            <li>Campos preenchidos com números finitos</li>
+          </ul>
+        </div>
+        <div class="bloco">
+          <h3>Os testes cobrem</h3>
+          <ul>
+            <li>Exemplo, identidade e matriz zero</li>
+            <li>Retangulares, 1 × 1, negativos e decimais</li>
+            <li>Entradas inválidas e comunicação com Python</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide capa conclusao" aria-labelledby="titulo-10">
+      <h2 id="titulo-10" tabindex="-1">Da regra ao software</h2>
+      <ul>
+        <li>Conferimos quais dimensões permitem multiplicar.</li>
+        <li>Transformamos linha × coluna em três laços Python.</li>
+        <li>Validamos os dados e mostramos a origem de cada valor em C.</li>
+      </ul>
+    </section>
+
+    <nav class="navegacao" aria-label="Navegação da apresentação" hidden>
+      <p class="atalhos">Use as setas ← e → para navegar.</p>
+      <div class="controles">
+        <button type="button" id="anterior">Anterior</button>
+        <p id="progresso" role="status" aria-atomic="true"></p>
+        <button type="button" id="proximo">Próximo</button>
+        <button type="button" id="imprimir">Imprimir / PDF</button>
+      </div>
+    </nav>
+  </main>
+</body>
+</html>

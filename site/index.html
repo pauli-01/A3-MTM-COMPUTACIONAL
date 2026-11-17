@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Multiplicação de Matrizes</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="estilo.css">
+    <script src="interface.js" defer></script>
+</head>
+<body>
+    <a class="pular" href="#calculadora">Ir para a calculadora</a>
+    <header class="topo">
+        <div class="largura barra">
+            <span class="marca"><span class="marca-icone" aria-hidden="true"></span> Matemática Computacional</span>
+            <nav aria-label="Navegação principal">
+                <a href="#como-funciona">Como funciona</a>
+                <a href="/apresentacao/">Slides</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="introducao" aria-labelledby="titulo">
+            <div class="largura introducao-conteudo">
+                <div>
+                    <h1 id="titulo">Multiplicação<br> de Matrizes</h1>
+                    <p>Preencha duas matrizes e acompanhe como cada linha de A e cada coluna de B produzem os elementos de C.</p>
+                </div>
+                <!-- O desenho destaca a linha e a coluna usadas para chegar a 58. -->
+                <figure class="ilustracao" aria-label="A primeira linha de A multiplicada pela primeira coluna de B dá 58 na primeira posição de C.">
+                    <div class="ilustracao-matriz" aria-hidden="true">
+                        <span>A</span>
+                        <div class="colchetes">
+                            <table>
+                                <tr><td class="destaque">1</td><td class="destaque">2</td><td class="destaque">3</td></tr>
+                                <tr><td>4</td><td>5</td><td>6</td></tr>
+                            </table>
+                        </div>
+                        <span>2 × 3</span>
+                    </div>
+                    <span class="sinal" aria-hidden="true">×</span>
+                    <div class="ilustracao-matriz" aria-hidden="true">
+                        <span>B</span>
+                        <div class="colchetes">
+                            <table>
+                                <tr><td class="destaque">7</td><td>8</td></tr>
+                                <tr><td class="destaque">9</td><td>10</td></tr>
+                                <tr><td class="destaque">11</td><td>12</td></tr>
+                            </table>
+                        </div>
+                        <span>3 × 2</span>
+                    </div>
+                    <span class="sinal" aria-hidden="true">=</span>
+                    <div class="ilustracao-matriz" aria-hidden="true">
+                        <span>C</span>
+                        <div class="colchetes">
+                            <table>
+                                <tr><td class="destaque">58</td><td>64</td></tr>
+                                <tr><td>139</td><td>154</td></tr>
+                            </table>
+                        </div>
+                        <span>2 × 2</span>
+                    </div>
+                </figure>
+            </div>
+        </section>
+
+        <div class="largura conteudo">
+            <section aria-labelledby="calculadora">
+                <h2 id="calculadora" tabindex="-1">Calculadora</h2>
+                <p id="dica-valores" class="texto-suave">A demonstração aceita de 1 a 6 linhas e colunas. Use vírgula ou ponto para decimais e escreva números sem separador de milhar.</p>
+                <noscript><p class="alerta">Ative o JavaScript do navegador para usar a calculadora.</p></noscript>
+
+                <!-- O JavaScript monta as grades depois de ler as dimensões. -->
+                <form id="formulario" novalidate>
+                    <div class="paineis-matrizes">
+                        <fieldset class="painel" aria-labelledby="titulo-a">
+                            <div class="painel-cabecalho">
+                                <h3 id="titulo-a"><span class="letra-matriz" aria-hidden="true">A</span> Matriz A</h3>
+                                <span class="dimensao" id="dimensao-a"></span>
+                            </div>
+                            <div class="dimensoes">
+                                <label>Linhas <select id="linhas-a" aria-label="Linhas da matriz A"></select></label>
+                                <label>Colunas <select id="colunas-a" aria-label="Colunas da matriz A"></select></label>
+                            </div>
+                            <div class="matriz-rolagem">
+                                <div class="colchetes grade" id="grade-a"></div>
+                            </div>
+                        </fieldset>
+                        <fieldset class="painel" aria-labelledby="titulo-b">
+                            <div class="painel-cabecalho">
+                                <h3 id="titulo-b"><span class="letra-matriz" aria-hidden="true">B</span> Matriz B</h3>
+                                <span class="dimensao" id="dimensao-b"></span>
+                            </div>
+                            <div class="dimensoes">
+                                <label>Linhas <select id="linhas-b" aria-label="Linhas da matriz B"></select></label>
+                                <label>Colunas <select id="colunas-b" aria-label="Colunas da matriz B"></select></label>
+                            </div>
+                            <div class="matriz-rolagem">
+                                <div class="colchetes grade" id="grade-b"></div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="controles">
+                        <p id="compatibilidade" class="compatibilidade" role="status"></p>
+                        <div class="acoes">
+                            <button class="primario" id="calcular" type="submit">Calcular</button>
+                            <button id="exemplo" type="button">Carregar exemplo</button>
+                            <button class="terciario" id="limpar" type="button">Limpar</button>
+                        </div>
+                    </div>
+                    <p id="erro" class="alerta" role="alert" hidden></p>
+                </form>
+            </section>
+
+            <section class="painel resultado" aria-labelledby="titulo-c">
+                <div class="painel-cabecalho">
+                    <h2 id="titulo-c" tabindex="-1"><span class="letra-matriz" aria-hidden="true">C</span> Matriz C</h2>
+                    <span class="dimensao" id="dimensao-c" hidden></span>
+                </div>
+                <p id="situacao" class="texto-suave" role="status">O resultado e o passo a passo aparecem aqui após o cálculo.</p>
+                <div id="resultado" class="resultado-conteudo" hidden>
+                    <div class="matriz-rolagem" tabindex="0" role="region" aria-label="Valores da matriz C">
+                        <div class="colchetes">
+                            <table id="valores-c" aria-label="Matriz C"></table>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Passo a passo</h3>
+                        <ul id="passos"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="como-funciona" aria-labelledby="titulo-como">
+                <h2 id="titulo-como">Como funciona</h2>
+                <div class="conceitos">
+                    <article>
+                        <h3>Dimensões compatíveis</h3>
+                        <p>Se A tem <i>m</i> × <i>n</i> e B tem <i>n</i> × <i>p</i>, o resultado tem <i>m</i> × <i>p</i>. As colunas de A devem ser tantas quanto as linhas de B.</p>
+                    </article>
+                    <article>
+                        <h3>Linha × coluna</h3>
+                        <p>Para achar C[1,1], multiplique os valores correspondentes da primeira linha de A e da primeira coluna de B, depois some os produtos.</p>
+                    </article>
+                    <article>
+                        <h3>Aplicação em compras</h3>
+                        <p>Se A guarda quantidades por pedido e B guarda os preços unitários por fornecedor, C mostra quanto cada pedido custa em cada fornecedor. Por exemplo, duas canetas de R$ 10,00 e um caderno de R$ 5,00 custam R$ 25,00 no primeiro fornecedor.</p>
+                    </article>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

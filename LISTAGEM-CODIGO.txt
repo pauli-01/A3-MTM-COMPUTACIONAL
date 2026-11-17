@@ -1,0 +1,2337 @@
+===== apresentacao/apresentacao.js =====
+"use strict";
+
+const slides = document.querySelectorAll(".slide");
+const navegacao = document.querySelector(".navegacao");
+const anterior = document.querySelector("#anterior");
+const proximo = document.querySelector("#proximo");
+const progresso = document.querySelector("#progresso");
+const imprimir = document.querySelector("#imprimir");
+let indiceAtual = 0;
+
+// Mantém um slide visível na tela e anuncia sua posição.
+function mostrarSlide(indice, moverFoco) {
+  if (indice < 0 || indice >= slides.length) {
+    return;
+  }
+
+  indiceAtual = indice;
+  for (let i = 0; i < slides.length; i++) {
+    slides[i].hidden = i !== indiceAtual;
+  }
+
+  anterior.disabled = indiceAtual === 0;
+  proximo.disabled = indiceAtual === slides.length - 1;
+  progresso.textContent = `Slide ${indiceAtual + 1} de ${slides.length}`;
+
+  if (moverFoco) {
+    slides[indiceAtual].querySelector("h1, h2").focus();
+  }
+}
+
+anterior.addEventListener("click", () => mostrarSlide(indiceAtual - 1, true));
+proximo.addEventListener("click", () => mostrarSlide(indiceAtual + 1, true));
+imprimir.addEventListener("click", () => window.print());
+
+// As teclas de edição e os atalhos do navegador continuam disponíveis.
+document.addEventListener("keydown", (evento) => {
+  if (evento.defaultPrevented || evento.altKey || evento.ctrlKey || evento.metaKey ||
+      evento.shiftKey || evento.target.matches("input")) {
+    return;
+  }
+
+  let destino = indiceAtual;
+  switch (evento.key) {
+    case "ArrowLeft":
+      destino--;
+      break;
+    case "ArrowRight":
+      destino++;
+      break;
+    case "Home":
+      destino = 0;
+      break;
+    case "End":
+      destino = slides.length - 1;
+      break;
+    default:
+      return;
+  }
+
+  evento.preventDefault();
+  mostrarSlide(destino, true);
+});
+
+mostrarSlide(0, false);
+navegacao.hidden = false;
+
+===== apresentacao/estilo.css =====
+:root {
+  --fundo: #f5f5ef;
+  --papel: #fff;
+  --texto: #172921;
+  --suave: #506356;
+  --verde: #285844;
+  --verde-claro: #d3ec90;
+  --borda: #ced8cb;
+  --claro: #e9f1e5;
+  --mono: ui-monospace, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font: 1rem/1.5 system-ui, sans-serif;
+}
+
+.apresentacao {
+  max-width: 79rem;
+  margin: 0 auto;
+  padding: clamp(0.7rem, 3vw, 2rem);
+}
+
+/* Cada seção pode ser lida de forma independente. */
+.slide {
+  display: grid;
+  align-content: center;
+  gap: clamp(0.9rem, 2.5vh, 1.8rem);
+  min-height: min(70vh, 42rem);
+  padding: clamp(1rem, 4vw, 3.75rem);
+  border: 1px solid var(--borda);
+  border-radius: 1.25rem;
+  background: var(--papel);
+  font-size: clamp(1rem, 2.1vw, 1.55rem);
+}
+
+.slide + .slide {
+  margin-top: 1.25rem;
+}
+
+.slide[hidden] + .slide {
+  margin-top: 0;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+figure {
+  margin: 0;
+}
+
+h1,
+h2 {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+h1 {
+  font-size: clamp(2.55rem, 8vw, 6.8rem);
+}
+
+h2 {
+  font-size: clamp(1.95rem, 5.2vw, 4.3rem);
+}
+
+h3 {
+  font-size: 1em;
+}
+
+ul,
+ol {
+  padding-left: 1.25em;
+}
+
+li + li {
+  margin-top: 0.4em;
+}
+
+.capa {
+  background-color: var(--texto);
+  background-image:
+    linear-gradient(to right, #ffffff0b 1px, transparent 1px),
+    linear-gradient(to bottom, #ffffff0b 1px, transparent 1px);
+  background-size: 2.25rem 2.25rem;
+  color: var(--papel);
+  border-color: var(--texto);
+}
+
+.disciplina {
+  color: var(--verde-claro);
+  font-size: 0.75em;
+  font-weight: 700;
+}
+
+.subtitulo,
+.nota {
+  color: var(--suave);
+}
+
+.capa .subtitulo {
+  color: var(--claro);
+}
+
+.integrantes {
+  display: grid;
+  grid-template-columns: max-content minmax(8em, 36ch);
+  align-items: center;
+  gap: 0.45rem 0.8rem;
+  max-width: 100%;
+  font-size: 0.8em;
+}
+
+.integrantes input {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0.3em 0.55em;
+  border: 1px solid #8da493;
+  border-radius: 0.4rem;
+  color: var(--papel);
+  background: #243c31;
+  font: inherit;
+}
+
+.equacao {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: clamp(0.55rem, 2.3vw, 1.75rem);
+}
+
+.equacao figure,
+.demonstracao figure {
+  display: grid;
+  justify-items: start;
+  gap: 0.55rem;
+}
+
+figcaption {
+  color: var(--verde);
+  font-size: 0.8em;
+  font-weight: 700;
+}
+
+figure p {
+  color: var(--suave);
+  font-size: 0.75em;
+}
+
+.operador {
+  color: var(--verde);
+  font: 700 1.25em var(--mono);
+}
+
+/* As bordas laterais enquadram as tabelas como matrizes. */
+.matriz {
+  border: solid var(--verde);
+  border-width: 0 0.12em;
+  border-radius: 0.35em;
+  border-spacing: 0.19em;
+  padding: 0.12em;
+  font: 700 1em/1.3 var(--mono);
+  text-align: center;
+}
+
+.matriz-grande {
+  font-size: clamp(1.1rem, 3.1vw, 2.4rem);
+}
+
+.matriz td {
+  min-width: 1.5em;
+  padding: 0.2em 0.28em;
+  border-radius: 0.18em;
+}
+
+.marcado,
+mark {
+  background: var(--verde-claro);
+  color: var(--texto);
+}
+
+.dimensoes div {
+  display: grid;
+  gap: 0.2em;
+  text-align: center;
+  padding: 0.45em 0.58em;
+  background: var(--claro);
+  border-radius: 0.5em;
+}
+
+.dimensoes div span {
+  color: var(--verde);
+  font-weight: 700;
+  font-size: 0.78em;
+}
+
+.dimensoes strong {
+  font: 700 clamp(1rem, 3.2vw, 2.4rem) var(--mono);
+}
+
+mark {
+  padding: 0.1em;
+  border-radius: 0.18em;
+}
+
+.duas-colunas {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: clamp(1rem, 4vw, 4rem);
+}
+
+.duas-colunas > div > p + p {
+  margin-top: 0.55em;
+}
+
+.destaque {
+  color: var(--verde);
+  font-weight: 700;
+}
+
+.formula,
+.codigo {
+  padding: 0.75em 1em;
+  border-radius: 0.6rem;
+  background: var(--claro);
+  font-family: var(--mono);
+}
+
+.codigo {
+  margin: 0;
+  overflow-x: auto;
+  color: var(--papel);
+  background: var(--texto);
+  font-size: 0.86em;
+}
+
+.codigo code {
+  font: inherit;
+}
+
+.lacos {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.lacos div {
+  display: grid;
+  grid-template-columns: 1.8em 1fr;
+  align-items: start;
+  gap: 0.75rem;
+}
+
+.lacos dt {
+  border-radius: 0.3em;
+  background: var(--claro);
+  color: var(--verde);
+  font: 700 1.35em/1.3 var(--mono);
+  text-align: center;
+}
+
+.lacos dd {
+  margin: 0;
+}
+
+.bloco {
+  align-self: stretch;
+  padding: 0.7em 0.8em;
+  border: 1px solid var(--borda);
+  border-radius: 0.6rem;
+}
+
+.bloco h3 {
+  margin-bottom: 0.4em;
+  color: var(--verde);
+}
+
+.bloco + .bloco {
+  max-width: 24em;
+}
+
+.navegacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.85rem;
+}
+
+.controles {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.atalhos,
+#progresso {
+  color: var(--suave);
+  font-size: 0.9rem;
+}
+
+#progresso {
+  min-width: 7em;
+  text-align: center;
+}
+
+.acao,
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.5em 0.8em;
+  border: 1px solid var(--verde);
+  border-radius: 0.5rem;
+  background: var(--papel);
+  color: var(--verde);
+  font: 700 0.95rem/1.2 system-ui, sans-serif;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#proximo,
+.acao {
+  background: var(--verde);
+  color: var(--papel);
+}
+
+.acao {
+  margin-top: 1em;
+}
+
+button:hover:not(:disabled),
+.acao:hover {
+  background: var(--claro);
+  color: var(--texto);
+}
+
+button:disabled {
+  border-color: var(--borda);
+  background: var(--fundo);
+  color: var(--suave);
+  cursor: default;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+.codigo:focus-visible {
+  outline: 3px solid var(--verde);
+  outline-offset: 3px;
+}
+
+.capa input:focus-visible,
+.codigo:focus-visible {
+  outline-color: var(--verde-claro);
+}
+
+/* Os títulos recebem foco apenas para anunciar a mudança de slide. */
+[tabindex="-1"]:focus {
+  outline: none;
+}
+
+@media (max-width: 43rem) {
+  .duas-colunas {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .aplicacao {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 25rem) {
+  .integrantes {
+    grid-template-columns: 1fr;
+  }
+}
+
+@page {
+  size: A4 landscape;
+  margin: 10mm;
+}
+
+@media print {
+  body,
+  .capa {
+    background: white;
+    color: var(--texto);
+  }
+
+  .apresentacao,
+  .slide {
+    margin: 0;
+    padding: 0;
+  }
+
+  .slide,
+  .slide[hidden] {
+    display: grid !important;
+    min-height: 165mm;
+    gap: 8mm;
+    border: 0;
+    break-inside: avoid;
+    font-size: 16pt;
+  }
+
+  .slide + .slide {
+    margin-top: 0;
+    break-before: page;
+  }
+
+  .navegacao,
+  .acao {
+    display: none !important;
+  }
+
+  .capa .disciplina,
+  .capa .subtitulo {
+    color: var(--texto);
+  }
+
+  .integrantes input {
+    color: var(--texto);
+    background: white;
+    border-color: var(--suave);
+  }
+
+  .codigo {
+    overflow: visible;
+    color: var(--texto);
+    background: white;
+    border: 1px solid var(--borda);
+  }
+
+  .marcado,
+  mark {
+    outline: 1px solid var(--verde);
+  }
+}
+
+===== apresentacao/index.html =====
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Multiplicação de Matrizes | Apresentação</title>
+  <link rel="stylesheet" href="estilo.css">
+  <script src="apresentacao.js" defer></script>
+</head>
+<body>
+  <main class="apresentacao" aria-label="Apresentação de Matemática Computacional Aplicada">
+    <section class="slide capa" aria-labelledby="titulo-1">
+      <p class="disciplina">Matemática Computacional Aplicada · Opção 3</p>
+      <h1 id="titulo-1" tabindex="-1">Multiplicação<br>de Matrizes</h1>
+      <p class="subtitulo">Um software matemático em Python</p>
+      <div class="integrantes">
+        <label for="integrante-1">Integrante 1</label>
+        <input id="integrante-1" type="text" autocomplete="off">
+        <label for="integrante-2">Integrante 2</label>
+        <input id="integrante-2" type="text" autocomplete="off">
+        <label for="integrante-3">Integrante 3 (opcional)</label>
+        <input id="integrante-3" type="text" autocomplete="off">
+      </div>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-2">
+      <h2 id="titulo-2" tabindex="-1">Quanto custa cada pedido?</h2>
+      <p class="subtitulo">Calcular e mostrar como cada total foi obtido.</p>
+      <div class="equacao aplicacao">
+        <figure>
+          <figcaption>A · Quantidades</figcaption>
+          <table class="matriz" aria-label="A: quantidades por pedido e produto">
+            <tbody><tr><td>2</td><td>1</td></tr><tr><td>1</td><td>3</td></tr></tbody>
+          </table>
+          <p>Pedidos × produtos</p>
+        </figure>
+        <span class="operador">×</span>
+        <figure>
+          <figcaption>B · Preços unitários</figcaption>
+          <table class="matriz" aria-label="B: preços em reais por produto e fornecedor">
+            <tbody><tr><td>10</td><td>12</td></tr><tr><td>5</td><td>4</td></tr></tbody>
+          </table>
+          <p>Produtos × fornecedores</p>
+        </figure>
+        <span class="operador">=</span>
+        <figure>
+          <figcaption>C · Totais em reais</figcaption>
+          <table class="matriz" aria-label="C: custo em reais por pedido e fornecedor">
+            <tbody><tr><td>25</td><td>28</td></tr><tr><td>25</td><td>24</td></tr></tbody>
+          </table>
+          <p>Pedidos × fornecedores</p>
+        </figure>
+      </div>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-3">
+      <h2 id="titulo-3" tabindex="-1">Linhas e colunas</h2>
+      <div class="duas-colunas">
+        <div>
+          <p class="destaque">A tem dimensão 2 × 3.</p>
+          <p>São 2 linhas horizontais e 3 colunas verticais.</p>
+          <p>Na posição (2, 3), está o número <strong>6</strong>.</p>
+        </div>
+        <table class="matriz matriz-grande" aria-label="A: duas linhas e três colunas">
+          <tbody>
+            <tr><td>1</td><td>2</td><td>3</td></tr>
+            <tr><td>4</td><td>5</td><td class="marcado">6</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-4">
+      <h2 id="titulo-4" tabindex="-1">Quando podemos multiplicar?</h2>
+      <p class="subtitulo">As colunas de A precisam coincidir com as linhas de B.</p>
+      <div class="equacao dimensoes">
+        <div><span>A</span><strong>m × <mark>n</mark></strong></div>
+        <span class="operador">×</span>
+        <div><span>B</span><strong><mark>n</mark> × p</strong></div>
+        <span class="operador">=</span>
+        <div><span>C</span><strong>m × p</strong></div>
+      </div>
+      <p class="nota"><strong>Exemplo</strong> (2 × 3) com (3 × 2) produz (2 × 2).</p>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-5">
+      <h2 id="titulo-5" tabindex="-1">Uma linha encontra uma coluna</h2>
+      <div class="equacao">
+        <figure>
+          <figcaption>A · Linha 1</figcaption>
+          <table class="matriz matriz-grande" aria-label="A: linha um em destaque">
+            <tbody>
+              <tr><td class="marcado">1</td><td class="marcado">2</td><td class="marcado">3</td></tr>
+              <tr><td>4</td><td>5</td><td>6</td></tr>
+            </tbody>
+          </table>
+        </figure>
+        <span class="operador">×</span>
+        <figure>
+          <figcaption>B · Coluna 1</figcaption>
+          <table class="matriz matriz-grande" aria-label="B: coluna um em destaque">
+            <tbody>
+              <tr><td class="marcado">7</td><td>8</td></tr>
+              <tr><td class="marcado">9</td><td>10</td></tr>
+              <tr><td class="marcado">11</td><td>12</td></tr>
+            </tbody>
+          </table>
+        </figure>
+      </div>
+      <p class="formula"><strong>C[1,1]</strong> = (1 × 7) + (2 × 9) + (3 × 11) = <strong>58</strong></p>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-6">
+      <h2 id="titulo-6" tabindex="-1">O cálculo em Python</h2>
+      <!-- Trecho simplificado do terminal. -->
+      <pre class="codigo" tabindex="0" aria-label="Trecho da versão de terminal"><code>resultado = []
+for i in range(linhas_a):
+    linha_resultado = []
+    for j in range(colunas_b):
+        acumulador = 0
+        for k in range(colunas_a):
+            acumulador += matriz_a[i][k] * matriz_b[k][j]
+        linha_resultado.append(acumulador)
+    resultado.append(linha_resultado)</code></pre>
+      <p class="nota">Cada posição do resultado começa com acumulador igual a zero.</p>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-7">
+      <h2 id="titulo-7" tabindex="-1">O papel dos três laços</h2>
+      <dl class="lacos">
+        <div><dt>i</dt><dd>Escolhe a linha de A e a linha que estamos montando em C.</dd></div>
+        <div><dt>j</dt><dd>Escolhe a coluna de B e a próxima posição dessa linha em C.</dd></div>
+        <div><dt>k</dt><dd>Percorre os pares de valores e acumula os seus produtos.</dd></div>
+      </dl>
+      <p class="nota">No Python, os índices começam em 0. Nos passos exibidos, começam em 1.</p>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-8">
+      <h2 id="titulo-8" tabindex="-1">Demonstração</h2>
+      <div class="duas-colunas demonstracao">
+        <div>
+          <ol>
+            <li>Carregar o exemplo e calcular.</li>
+            <li>Conferir a matriz C e os quatro passos.</li>
+            <li>Alterar B para 2 linhas e observar o aviso.</li>
+          </ol>
+          <a class="acao" href="http://127.0.0.1:8000/" target="_blank" rel="noopener">Abrir o site local em outra aba</a>
+        </div>
+        <figure>
+          <figcaption>C · Resultado esperado</figcaption>
+          <table class="matriz matriz-grande" aria-label="C: 58, 64 na linha um e 139, 154 na linha dois">
+            <tbody><tr><td>58</td><td>64</td></tr><tr><td>139</td><td>154</td></tr></tbody>
+          </table>
+        </figure>
+      </div>
+    </section>
+
+    <section class="slide" aria-labelledby="titulo-9">
+      <h2 id="titulo-9" tabindex="-1">Validações e testes</h2>
+      <div class="duas-colunas">
+        <div class="bloco">
+          <h3>O programa verifica</h3>
+          <ul>
+            <li>Dimensões de 1 a 6 e compatibilidade</li>
+            <li>Linhas do mesmo tamanho</li>
+            <li>Campos preenchidos com números finitos</li>
+          </ul>
+        </div>
+        <div class="bloco">
+          <h3>Os testes cobrem</h3>
+          <ul>
+            <li>Exemplo, identidade e matriz zero</li>
+            <li>Retangulares, 1 × 1, negativos e decimais</li>
+            <li>Entradas inválidas e comunicação com Python</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide capa conclusao" aria-labelledby="titulo-10">
+      <h2 id="titulo-10" tabindex="-1">Da regra ao software</h2>
+      <ul>
+        <li>Conferimos quais dimensões permitem multiplicar.</li>
+        <li>Transformamos linha × coluna em três laços Python.</li>
+        <li>Validamos os dados e mostramos a origem de cada valor em C.</li>
+      </ul>
+    </section>
+
+    <nav class="navegacao" aria-label="Navegação da apresentação" hidden>
+      <p class="atalhos">Use as setas ← e → para navegar.</p>
+      <div class="controles">
+        <button type="button" id="anterior">Anterior</button>
+        <p id="progresso" role="status" aria-atomic="true"></p>
+        <button type="button" id="proximo">Próximo</button>
+        <button type="button" id="imprimir">Imprimir / PDF</button>
+      </div>
+    </nav>
+  </main>
+</body>
+</html>
+
+===== calculo.py =====
+LIMITE_DIMENSAO = 6
+INFINITO = float("inf")
+
+
+def converter_numero(valor):
+    # Converte texto com vírgula ou ponto e preserva inteiros.
+    if type(valor) is str:
+        texto = valor.strip().replace(",", ".")
+        digitos = texto.lstrip("+-").replace(".", "", 1)
+        if not digitos.isdecimal():
+            raise ValueError("Digite um número com ponto ou vírgula decimal.")
+        try:
+            if "." in texto:
+                valor = float(texto)
+            else:
+                valor = int(texto)
+        except ValueError:
+            raise ValueError("Digite um número válido.") from None
+
+    if type(valor) not in (int, float) or not -INFINITO < valor < INFINITO:
+        raise ValueError("Digite um número finito.")
+    return valor
+
+
+def validar_matriz(matriz, nome):
+    # Verifica o formato e cria uma cópia com os elementos convertidos.
+    if type(matriz) is not list or not 1 <= len(matriz) <= LIMITE_DIMENSAO:
+        raise ValueError(f"A matriz {nome} deve ter de 1 a {LIMITE_DIMENSAO} linhas.")
+    if type(matriz[0]) is not list or not 1 <= len(matriz[0]) <= LIMITE_DIMENSAO:
+        raise ValueError(f"A matriz {nome} deve ter de 1 a {LIMITE_DIMENSAO} colunas.")
+
+    colunas = len(matriz[0])
+    matriz_validada = []
+    for i, linha in enumerate(matriz):
+        if type(linha) is not list or len(linha) != colunas:
+            raise ValueError(f"Todas as linhas da matriz {nome} devem ter {colunas} colunas.")
+        linha_validada = []
+        for j, valor in enumerate(linha):
+            try:
+                linha_validada.append(converter_numero(valor))
+            except ValueError as erro:
+                raise ValueError(f"{nome}[{i + 1},{j + 1}]: {erro}") from None
+        matriz_validada.append(linha_validada)
+    return matriz_validada
+
+
+def formatar_numero(valor):
+    # Usa a vírgula decimal nas expressões apresentadas.
+    try:
+        return str(valor).replace(".", ",")
+    except ValueError:
+        raise ValueError("O número está fora do intervalo de exibição.") from None
+
+
+def multiplicar_matrizes(matriz_a, matriz_b):
+    matriz_a = validar_matriz(matriz_a, "A")
+    matriz_b = validar_matriz(matriz_b, "B")
+    linhas_a = len(matriz_a)
+    colunas_a = len(matriz_a[0])
+    linhas_b = len(matriz_b)
+    colunas_b = len(matriz_b[0])
+    if colunas_a != linhas_b:
+        raise ValueError(
+            "Dimensões incompatíveis. "
+            f"As colunas de A ({colunas_a}) devem corresponder às linhas de B ({linhas_b})."
+        )
+
+    resultado = []
+    passos = []
+    # i percorre as linhas de A e abre uma linha do resultado.
+    for i in range(linhas_a):
+        linha_resultado = []
+        linha_passos = []
+        # j percorre as colunas de B e escolhe uma posição de C.
+        for j in range(colunas_b):
+            # Cada posição começa com soma zero.
+            acumulador = 0
+            termos = []
+            # k combina os elementos da linha de A e da coluna de B.
+            for k in range(colunas_a):
+                valor_a = matriz_a[i][k]
+                valor_b = matriz_b[k][j]
+                try:
+                    acumulador += valor_a * valor_b
+                except OverflowError:
+                    raise ValueError("O cálculo excedeu o intervalo numérico.") from None
+                termos.append(f"({formatar_numero(valor_a)} × {formatar_numero(valor_b)})")
+
+            if not -INFINITO < acumulador < INFINITO:
+                raise ValueError("O cálculo excedeu o intervalo numérico.")
+
+            # Guarda o valor e a expressão da posição recém-calculada.
+            linha_resultado.append(acumulador)
+            expressao = " + ".join(termos)
+            linha_passos.append(f"C[{i + 1},{j + 1}] = {expressao} = {formatar_numero(acumulador)}")
+        resultado.append(linha_resultado)
+        passos.append(linha_passos)
+    return resultado, passos
+
+===== servidor.py =====
+"""Servidor HTTP local para a interface de multiplicação."""
+
+import json
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+
+from calculo import formatar_numero, multiplicar_matrizes
+
+
+PASTA_PROJETO = Path(__file__).resolve().parent
+ENDERECO = "127.0.0.1"
+PORTA = 8000
+LIMITE_REQUISICAO = 16_384  # bytes
+
+# Só estes arquivos são publicados pelo servidor.
+ARQUIVOS = {
+    "/": ("site/index.html", "text/html"),
+    "/estilo.css": ("site/estilo.css", "text/css"),
+    "/interface.js": ("site/interface.js", "text/javascript"),
+    "/apresentacao/": ("apresentacao/index.html", "text/html"),
+    "/apresentacao/estilo.css": ("apresentacao/estilo.css", "text/css"),
+    "/apresentacao/apresentacao.js": (
+        "apresentacao/apresentacao.js", "text/javascript"
+    ),
+}
+
+
+class ServidorMatrizes(BaseHTTPRequestHandler):
+    """Recebe as requisições do navegador e envia as respostas HTTP."""
+
+    def responder(self, status, tipo, conteudo):
+        self.send_response(status)
+        self.send_header("Content-Type", f"{tipo}; charset=utf-8")
+        self.send_header("Content-Length", str(len(conteudo)))
+        self.end_headers()
+        self.wfile.write(conteudo)
+
+    def responder_json(self, status, dados):
+        conteudo = json.dumps(dados, ensure_ascii=False, allow_nan=False)
+        self.responder(status, "application/json", conteudo.encode("utf-8"))
+
+    def do_GET(self):
+        rota = self.path.partition("?")[0]
+        if rota not in ARQUIVOS:
+            self.responder_json(404, {"erro": "Página não encontrada."})
+            return
+
+        caminho, tipo = ARQUIVOS[rota]
+        try:
+            conteudo = (PASTA_PROJETO / caminho).read_bytes()
+        except OSError:
+            self.responder_json(500, {"erro": "Não foi possível abrir o arquivo."})
+            return
+        self.responder(200, tipo, conteudo)
+
+    def do_POST(self):
+        if self.path != "/api/calcular":
+            self.responder_json(404, {"erro": "Endereço de cálculo não encontrado."})
+            return
+        if self.headers.get_content_type() != "application/json":
+            self.responder_json(415, {"erro": "Envie os dados no formato JSON."})
+            return
+
+        # Limita o corpo antes da leitura e retorna erros em linguagem simples.
+        tamanhos = self.headers.get_all("Content-Length", [])
+        if len(tamanhos) != 1 or self.headers.get("Transfer-Encoding"):
+            self.responder_json(400, {"erro": "Tamanho da requisição inválido."})
+            return
+        try:
+            tamanho = int(tamanhos[0])
+        except ValueError:
+            tamanho = 0
+        if tamanho <= 0:
+            self.responder_json(400, {"erro": "Tamanho da requisição inválido."})
+            return
+        if tamanho > LIMITE_REQUISICAO:
+            self.responder_json(413, {"erro": "Requisição muito grande."})
+            return
+
+        try:
+            corpo = self.rfile.read(tamanho)
+            if len(corpo) != tamanho:
+                raise ValueError("Corpo incompleto")
+            dados = json.loads(corpo.decode("utf-8"))
+        except (ValueError, RecursionError):
+            self.responder_json(400, {"erro": "O conteúdo enviado não é um JSON válido."})
+            return
+        if not isinstance(dados, dict) or dados.keys() != {"a", "b"}:
+            self.responder_json(400, {"erro": "Envie as matrizes A e B."})
+            return
+
+        try:
+            resultado, passos = multiplicar_matrizes(dados["a"], dados["b"])
+        except ValueError as erro:
+            self.responder_json(400, {"erro": str(erro)})
+            return
+
+        # Preserva no navegador os dígitos exibidos pelo Python.
+        resultado_formatado = []
+        for linha in resultado:
+            linha_formatada = []
+            for valor in linha:
+                linha_formatada.append(formatar_numero(valor))
+            resultado_formatado.append(linha_formatada)
+
+        self.responder_json(200, {
+            "resultado": resultado,
+            "resultado_formatado": resultado_formatado,
+            "passos": passos,
+        })
+
+
+def criar_servidor(porta=PORTA):
+    """Restringe a escuta ao computador em que o programa é executado."""
+    return ThreadingHTTPServer((ENDERECO, porta), ServidorMatrizes)
+
+
+def principal():
+    try:
+        servidor = criar_servidor()
+    except OSError:
+        print(f"Não foi possível iniciar o servidor na porta {PORTA}.")
+        print("Verifique se outro programa já está usando essa porta.")
+        return 1
+
+    with servidor:
+        print(f"Abra http://{ENDERECO}:{PORTA} no navegador.")
+        print("Pressione Ctrl+C para encerrar.")
+        try:
+            servidor.serve_forever()
+        except KeyboardInterrupt:
+            print("\nServidor encerrado.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(principal())
+
+===== site/estilo.css =====
+:root {
+    color-scheme: light;
+    --fundo: #f5f5ef;
+    --superficie: #fff;
+    --escuro: #172921;
+    --suave: #506356;
+    --verde: #285844;
+    --verde-claro: #d3ec90;
+    --fundo-verde: #edf3e6;
+    --borda: #d6dfd2;
+    --borda-campo: #768579;
+    --erro: #8b2c22;
+    --fundo-erro: #fcf0ed;
+    --mono: ui-monospace, "Courier New", monospace;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--fundo);
+    color: var(--escuro);
+    font: 1rem/1.55 system-ui, sans-serif;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+:focus-visible {
+    outline: 3px solid var(--verde);
+    outline-offset: 3px;
+}
+
+h1,
+h2,
+h3,
+p,
+figure {
+    margin: 0;
+}
+
+h2 {
+    font-size: clamp(1.45rem, 3vw, 1.85rem);
+    line-height: 1.2;
+}
+
+h3 {
+    font-size: 1.05rem;
+}
+
+.largura {
+    width: min(70rem, calc(100% - 2.5rem));
+    margin-inline: auto;
+}
+
+.pular {
+    position: absolute;
+    z-index: 2;
+    top: 0.5rem;
+    left: 0.5rem;
+    padding: 0.6rem 1rem;
+    transform: translateY(-160%);
+    color: var(--escuro);
+    background: var(--superficie);
+}
+
+.pular:focus {
+    transform: none;
+}
+
+.topo {
+    background: var(--superficie);
+    border-bottom: 1px solid var(--borda);
+}
+
+.barra,
+.marca,
+nav {
+    display: flex;
+    align-items: center;
+}
+
+.barra {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0 1rem;
+    padding-block: 0.4rem;
+}
+
+.marca {
+    min-height: 44px;
+    gap: 0.6rem;
+    font-weight: 700;
+}
+
+.marca-icone {
+    display: grid;
+    width: 1.9rem;
+    height: 1.9rem;
+    place-items: center;
+    border-radius: 0.4rem;
+    background: var(--escuro);
+}
+
+.marca-icone::before {
+    width: 0.3rem;
+    height: 0.3rem;
+    margin: 0 0.5rem 0.5rem 0;
+    border-radius: 1px;
+    background: var(--verde-claro);
+    box-shadow: 0.5rem 0 var(--verde-claro), 0 0.5rem var(--verde-claro),
+        0.5rem 0.5rem var(--verde-claro);
+    content: "";
+}
+
+nav {
+    gap: 1.1rem;
+}
+
+nav a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    color: var(--verde);
+    font-size: 0.9rem;
+    font-weight: 650;
+    text-underline-offset: 0.22em;
+}
+
+/* Grade de fundo e exemplo ilustrado. */
+.introducao {
+    color: var(--fundo);
+    background: var(--escuro);
+    background-image: radial-gradient(#476452 0.85px, transparent 0.85px);
+    background-size: 1.2rem 1.2rem;
+}
+
+.introducao-conteudo {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 2.5rem;
+    padding-block: clamp(2rem, 5vw, 3.75rem);
+}
+
+h1 {
+    font: 500 clamp(2.65rem, 5.6vw, 4.8rem)/1.03 Georgia, serif;
+    letter-spacing: -0.035em;
+}
+
+.introducao p {
+    max-width: 46ch;
+    margin-top: 1rem;
+    color: #e0e8dc;
+}
+
+.ilustracao {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.5rem, 1.8vw, 1.4rem);
+    padding: 1.4rem clamp(0.65rem, 2vw, 1.75rem);
+    border: 1px solid #647b6a;
+    border-radius: 0.9rem;
+    background: #20372b;
+    font-family: var(--mono);
+}
+
+.ilustracao-matriz {
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    grid-template-rows: auto 6.5rem auto;
+    gap: 0.35rem;
+}
+
+.ilustracao-matriz > span:first-child,
+.sinal {
+    color: var(--verde-claro);
+    font-weight: 700;
+}
+
+.ilustracao-matriz > span:last-child {
+    color: #e0e8dc;
+    font-size: 0.85rem;
+}
+
+/* Dois pseudo-elementos desenham os colchetes de cada matriz. */
+.colchetes {
+    position: relative;
+    width: max-content;
+    max-width: 100%;
+    padding-inline: 0.65rem;
+}
+
+.colchetes::before,
+.colchetes::after {
+    position: absolute;
+    inset-block: 0;
+    width: 0.35rem;
+    border-block: 2px solid currentColor;
+    content: "";
+    pointer-events: none;
+}
+
+.colchetes::before {
+    left: 0;
+    border-left: 2px solid currentColor;
+}
+
+.colchetes::after {
+    right: 0;
+    border-right: 2px solid currentColor;
+}
+
+.ilustracao td {
+    padding: 0.06rem 0.27rem;
+    text-align: right;
+}
+
+.destaque {
+    border-radius: 0.2rem;
+    color: var(--escuro);
+    background: var(--verde-claro);
+    font-weight: 700;
+}
+
+.conteudo {
+    display: grid;
+    gap: 2rem;
+    padding-block: 1.75rem 3rem;
+}
+
+#calculadora,
+#como-funciona {
+    scroll-margin-top: 1rem;
+}
+
+.texto-suave {
+    color: var(--suave);
+}
+
+#dica-valores {
+    margin-block: 0.35rem 1rem;
+}
+
+.paineis-matrizes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.painel {
+    min-width: 0;
+    margin: 0;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--borda);
+    border-radius: 0.85rem;
+    background: var(--superficie);
+}
+
+.painel-cabecalho,
+.painel-cabecalho h3,
+.painel-cabecalho h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.painel-cabecalho {
+    justify-content: space-between;
+}
+
+.letra-matriz,
+.dimensao {
+    display: inline-grid;
+    place-items: center;
+    border-radius: 0.35rem;
+    background: var(--fundo-verde);
+    color: var(--verde);
+    font: 700 0.9rem/1 var(--mono);
+}
+
+.letra-matriz {
+    width: 1.9rem;
+    height: 1.9rem;
+}
+
+.dimensao {
+    min-width: 3.5rem;
+    padding: 0.4rem 0.5rem;
+    white-space: nowrap;
+}
+
+.dimensoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 1rem;
+    margin-block: 0.75rem 0.5rem;
+}
+
+.dimensoes label {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+select,
+input,
+button {
+    min-height: 44px;
+    border: 1px solid var(--borda-campo);
+    border-radius: 0.45rem;
+    color: var(--escuro);
+    background: var(--superficie);
+    font: inherit;
+}
+
+select {
+    min-width: 3.4rem;
+    padding-inline: 0.5rem;
+}
+
+/* Apenas as matrizes largas ganham rolagem horizontal. */
+.matriz-rolagem {
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 0.4rem 0.25rem;
+}
+
+.matriz-rolagem .colchetes {
+    max-width: none;
+}
+
+.grade {
+    display: grid;
+    gap: 0.34rem;
+    padding-block: 0.25rem;
+}
+
+.linha-matriz {
+    display: flex;
+    gap: 0.34rem;
+}
+
+.grade input {
+    width: clamp(2.75rem, 6vw, 4.4rem);
+    padding: 0.25rem;
+    text-align: center;
+    font-family: var(--mono);
+}
+
+[aria-invalid="true"] {
+    box-shadow: inset 0 0 0 1px var(--erro);
+    border-color: var(--erro);
+}
+
+.controles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem 1rem;
+    margin-top: 0.85rem;
+}
+
+.compatibilidade {
+    font-weight: 600;
+    color: var(--verde);
+}
+
+.incompativel {
+    color: var(--erro);
+}
+
+.acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+button {
+    padding-inline: 0.95rem;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+button:hover {
+    background: var(--fundo-verde);
+}
+
+.primario {
+    border-color: var(--escuro);
+    color: var(--superficie);
+    background: var(--escuro);
+}
+
+.primario:hover {
+    background: var(--verde);
+}
+
+.terciario {
+    background: transparent;
+}
+
+button:disabled {
+    opacity: 0.75;
+    cursor: wait;
+}
+
+.alerta {
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    border-left: 3px solid var(--erro);
+    border-radius: 0.25rem;
+    color: var(--erro);
+    background: var(--fundo-erro);
+}
+
+.resultado {
+    padding-block: 1.25rem;
+}
+
+#situacao {
+    margin-top: 0.45rem;
+}
+
+.resultado-conteudo {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    align-items: start;
+    gap: 1rem;
+    margin-top: 0.85rem;
+}
+
+#valores-c {
+    font: 650 1.1rem/1.6 var(--mono);
+}
+
+#valores-c td {
+    padding: 0.25rem 0.55rem;
+    text-align: right;
+}
+
+#passos {
+    margin: 0.45rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+#passos li {
+    padding: 0.55rem 0.7rem;
+    border-bottom: 1px solid var(--borda);
+    border-radius: 0.25rem;
+    background: var(--fundo-verde);
+    font: 0.95rem/1.55 var(--mono);
+    overflow-wrap: anywhere;
+}
+
+#passos li + li {
+    margin-top: 0.35rem;
+}
+
+.conceitos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem 1.25rem;
+    margin-top: 1rem;
+}
+
+.conceitos article {
+    padding-top: 0.65rem;
+    border-top: 2px solid var(--verde);
+}
+
+.conceitos p {
+    margin-top: 0.25rem;
+    color: var(--suave);
+}
+
+/* Empilha os cartões quando há menos espaço na tela. */
+@media (max-width: 54rem) {
+    .paineis-matrizes,
+    .resultado-conteudo {
+        grid-template-columns: 1fr;
+    }
+
+    .introducao-conteudo {
+        gap: 1.25rem;
+    }
+}
+
+@media (max-width: 42rem) {
+    .largura {
+        width: calc(100% - 2rem);
+    }
+
+    .introducao-conteudo,
+    .conceitos {
+        grid-template-columns: 1fr;
+    }
+
+    .ilustracao {
+        display: none;
+    }
+
+    .painel {
+        padding-inline: 0.85rem;
+    }
+}
+
+===== site/index.html =====
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Multiplicação de Matrizes</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="estilo.css">
+    <script src="interface.js" defer></script>
+</head>
+<body>
+    <a class="pular" href="#calculadora">Ir para a calculadora</a>
+    <header class="topo">
+        <div class="largura barra">
+            <span class="marca"><span class="marca-icone" aria-hidden="true"></span> Matemática Computacional</span>
+            <nav aria-label="Navegação principal">
+                <a href="#como-funciona">Como funciona</a>
+                <a href="/apresentacao/">Slides</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="introducao" aria-labelledby="titulo">
+            <div class="largura introducao-conteudo">
+                <div>
+                    <h1 id="titulo">Multiplicação<br> de Matrizes</h1>
+                    <p>Preencha duas matrizes e acompanhe como cada linha de A e cada coluna de B produzem os elementos de C.</p>
+                </div>
+                <!-- O desenho destaca a linha e a coluna usadas para chegar a 58. -->
+                <figure class="ilustracao" aria-label="A primeira linha de A multiplicada pela primeira coluna de B dá 58 na primeira posição de C.">
+                    <div class="ilustracao-matriz" aria-hidden="true">
+                        <span>A</span>
+                        <div class="colchetes">
+                            <table>
+                                <tr><td class="destaque">1</td><td class="destaque">2</td><td class="destaque">3</td></tr>
+                                <tr><td>4</td><td>5</td><td>6</td></tr>
+                            </table>
+                        </div>
+                        <span>2 × 3</span>
+                    </div>
+                    <span class="sinal" aria-hidden="true">×</span>
+                    <div class="ilustracao-matriz" aria-hidden="true">
+                        <span>B</span>
+                        <div class="colchetes">
+                            <table>
+                                <tr><td class="destaque">7</td><td>8</td></tr>
+                                <tr><td class="destaque">9</td><td>10</td></tr>
+                                <tr><td class="destaque">11</td><td>12</td></tr>
+                            </table>
+                        </div>
+                        <span>3 × 2</span>
+                    </div>
+                    <span class="sinal" aria-hidden="true">=</span>
+                    <div class="ilustracao-matriz" aria-hidden="true">
+                        <span>C</span>
+                        <div class="colchetes">
+                            <table>
+                                <tr><td class="destaque">58</td><td>64</td></tr>
+                                <tr><td>139</td><td>154</td></tr>
+                            </table>
+                        </div>
+                        <span>2 × 2</span>
+                    </div>
+                </figure>
+            </div>
+        </section>
+
+        <div class="largura conteudo">
+            <section aria-labelledby="calculadora">
+                <h2 id="calculadora" tabindex="-1">Calculadora</h2>
+                <p id="dica-valores" class="texto-suave">A demonstração aceita de 1 a 6 linhas e colunas. Use vírgula ou ponto para decimais e escreva números sem separador de milhar.</p>
+                <noscript><p class="alerta">Ative o JavaScript do navegador para usar a calculadora.</p></noscript>
+
+                <!-- O JavaScript monta as grades depois de ler as dimensões. -->
+                <form id="formulario" novalidate>
+                    <div class="paineis-matrizes">
+                        <fieldset class="painel" aria-labelledby="titulo-a">
+                            <div class="painel-cabecalho">
+                                <h3 id="titulo-a"><span class="letra-matriz" aria-hidden="true">A</span> Matriz A</h3>
+                                <span class="dimensao" id="dimensao-a"></span>
+                            </div>
+                            <div class="dimensoes">
+                                <label>Linhas <select id="linhas-a" aria-label="Linhas da matriz A"></select></label>
+                                <label>Colunas <select id="colunas-a" aria-label="Colunas da matriz A"></select></label>
+                            </div>
+                            <div class="matriz-rolagem">
+                                <div class="colchetes grade" id="grade-a"></div>
+                            </div>
+                        </fieldset>
+                        <fieldset class="painel" aria-labelledby="titulo-b">
+                            <div class="painel-cabecalho">
+                                <h3 id="titulo-b"><span class="letra-matriz" aria-hidden="true">B</span> Matriz B</h3>
+                                <span class="dimensao" id="dimensao-b"></span>
+                            </div>
+                            <div class="dimensoes">
+                                <label>Linhas <select id="linhas-b" aria-label="Linhas da matriz B"></select></label>
+                                <label>Colunas <select id="colunas-b" aria-label="Colunas da matriz B"></select></label>
+                            </div>
+                            <div class="matriz-rolagem">
+                                <div class="colchetes grade" id="grade-b"></div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="controles">
+                        <p id="compatibilidade" class="compatibilidade" role="status"></p>
+                        <div class="acoes">
+                            <button class="primario" id="calcular" type="submit">Calcular</button>
+                            <button id="exemplo" type="button">Carregar exemplo</button>
+                            <button class="terciario" id="limpar" type="button">Limpar</button>
+                        </div>
+                    </div>
+                    <p id="erro" class="alerta" role="alert" hidden></p>
+                </form>
+            </section>
+
+            <section class="painel resultado" aria-labelledby="titulo-c">
+                <div class="painel-cabecalho">
+                    <h2 id="titulo-c" tabindex="-1"><span class="letra-matriz" aria-hidden="true">C</span> Matriz C</h2>
+                    <span class="dimensao" id="dimensao-c" hidden></span>
+                </div>
+                <p id="situacao" class="texto-suave" role="status">O resultado e o passo a passo aparecem aqui após o cálculo.</p>
+                <div id="resultado" class="resultado-conteudo" hidden>
+                    <div class="matriz-rolagem" tabindex="0" role="region" aria-label="Valores da matriz C">
+                        <div class="colchetes">
+                            <table id="valores-c" aria-label="Matriz C"></table>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Passo a passo</h3>
+                        <ul id="passos"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="como-funciona" aria-labelledby="titulo-como">
+                <h2 id="titulo-como">Como funciona</h2>
+                <div class="conceitos">
+                    <article>
+                        <h3>Dimensões compatíveis</h3>
+                        <p>Se A tem <i>m</i> × <i>n</i> e B tem <i>n</i> × <i>p</i>, o resultado tem <i>m</i> × <i>p</i>. As colunas de A devem ser tantas quanto as linhas de B.</p>
+                    </article>
+                    <article>
+                        <h3>Linha × coluna</h3>
+                        <p>Para achar C[1,1], multiplique os valores correspondentes da primeira linha de A e da primeira coluna de B, depois some os produtos.</p>
+                    </article>
+                    <article>
+                        <h3>Aplicação em compras</h3>
+                        <p>Se A guarda quantidades por pedido e B guarda os preços unitários por fornecedor, C mostra quanto cada pedido custa em cada fornecedor. Por exemplo, duas canetas de R$ 10,00 e um caderno de R$ 5,00 custam R$ 25,00 no primeiro fornecedor.</p>
+                    </article>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
+
+===== site/interface.js =====
+const matrizes = [
+    {
+        nome: "A",
+        linhas: document.querySelector("#linhas-a"),
+        colunas: document.querySelector("#colunas-a"),
+        grade: document.querySelector("#grade-a"),
+        dimensao: document.querySelector("#dimensao-a"),
+        exemplo: [[1, 2, 3], [4, 5, 6]]
+    },
+    {
+        nome: "B",
+        linhas: document.querySelector("#linhas-b"),
+        colunas: document.querySelector("#colunas-b"),
+        grade: document.querySelector("#grade-b"),
+        dimensao: document.querySelector("#dimensao-b"),
+        exemplo: [[7, 8], [9, 10], [11, 12]]
+    }
+];
+
+const formulario = document.querySelector("#formulario");
+const calcular = document.querySelector("#calcular");
+const compatibilidade = document.querySelector("#compatibilidade");
+const erro = document.querySelector("#erro");
+const resultado = document.querySelector("#resultado");
+const dimensaoC = document.querySelector("#dimensao-c");
+const situacao = document.querySelector("#situacao");
+const tabelaC = document.querySelector("#valores-c");
+const listaPassos = document.querySelector("#passos");
+const dica = "O resultado e o passo a passo aparecem aqui após o cálculo.";
+const numeroDecimal = /^[+-]?(?:[0-9]+(?:[.,][0-9]*)?|[.,][0-9]+)$/;
+let pedido = null;
+
+// Gera as opções e a grade, preservando as células que ainda cabem ao redimensionar.
+function preencherOpcoes(campo) {
+    for (let tamanho = 1; tamanho <= 6; tamanho++) {
+        campo.add(new Option(tamanho, tamanho));
+    }
+}
+
+function montarGrade(matriz, valores) {
+    const linhas = Number(matriz.linhas.value);
+    const colunas = Number(matriz.colunas.value);
+    matriz.dimensao.textContent = linhas + " × " + colunas;
+    matriz.grade.replaceChildren();
+
+    for (let i = 0; i < linhas; i++) {
+        const linha = document.createElement("div");
+        linha.className = "linha-matriz";
+        for (let j = 0; j < colunas; j++) {
+            const campo = document.createElement("input");
+            campo.type = "text";
+            campo.inputMode = "decimal";
+            campo.autocomplete = "off";
+            campo.setAttribute("aria-describedby", "dica-valores");
+            campo.setAttribute("aria-label", "Matriz " + matriz.nome + ", linha " + (i + 1) + ", coluna " + (j + 1));
+            campo.value = valores[i]?.[j] ?? "";
+            linha.append(campo);
+        }
+        matriz.grade.append(linha);
+    }
+}
+
+function atualizarCompatibilidade() {
+    const colunasA = matrizes[0].colunas.value;
+    const linhasB = matrizes[1].linhas.value;
+    const compativel = colunasA === linhasB;
+    compatibilidade.classList.toggle("incompativel", !compativel);
+    if (compativel) {
+        compatibilidade.textContent = "Dimensões compatíveis · " + colunasA +
+            (colunasA === "1" ? " coluna em A e 1 linha em B." : " colunas em A e " + linhasB + " linhas em B.");
+    } else {
+        compatibilidade.textContent = "Dimensões incompatíveis. Iguale as colunas de A às linhas de B.";
+    }
+    return compativel;
+}
+
+function limparErro() {
+    const campo = formulario.querySelector('[aria-invalid="true"]');
+    if (campo) {
+        campo.removeAttribute("aria-invalid");
+        campo.removeAttribute("aria-errormessage");
+    }
+    erro.hidden = true;
+    erro.textContent = "";
+}
+
+function mostrarErro(mensagem, campo) {
+    erro.textContent = mensagem;
+    erro.hidden = false;
+    if (campo) {
+        campo.setAttribute("aria-invalid", "true");
+        campo.setAttribute("aria-errormessage", "erro");
+        campo.focus();
+    }
+}
+
+function limparResultado(mensagem) {
+    if (pedido) {
+        pedido.abort();
+        pedido = null;
+    }
+    calcular.disabled = false;
+    calcular.textContent = "Calcular";
+    resultado.hidden = true;
+    dimensaoC.hidden = true;
+    situacao.textContent = mensagem;
+}
+
+function usarDimensoesDoExemplo(preencher) {
+    for (const matriz of matrizes) {
+        matriz.linhas.value = matriz.exemplo.length;
+        matriz.colunas.value = matriz.exemplo[0].length;
+        montarGrade(matriz, preencher ? matriz.exemplo : []);
+    }
+    atualizarCompatibilidade();
+}
+
+for (const matriz of matrizes) {
+    for (const seletor of [matriz.linhas, matriz.colunas]) {
+        preencherOpcoes(seletor);
+        seletor.addEventListener("change", () => {
+            const valores = [];
+            for (const linha of matriz.grade.children) {
+                valores.push(Array.from(linha.children, campo => campo.value));
+            }
+            montarGrade(matriz, valores);
+            limparErro();
+            limparResultado(dica);
+            atualizarCompatibilidade();
+        });
+    }
+}
+
+usarDimensoesDoExemplo(false);
+formulario.addEventListener("input", () => {
+    limparErro();
+    limparResultado(dica);
+});
+
+document.querySelector("#exemplo").addEventListener("click", () => {
+    limparErro();
+    usarDimensoesDoExemplo(true);
+    limparResultado("Exemplo preenchido. Selecione Calcular para ver o resultado.");
+});
+
+document.querySelector("#limpar").addEventListener("click", () => {
+    limparErro();
+    for (const matriz of matrizes) {
+        montarGrade(matriz, []);
+    }
+    limparResultado("Valores apagados. Preencha as duas matrizes para calcular novamente.");
+});
+
+// Confere os campos e mantém os decimais como texto para o Python interpretar.
+function lerMatriz(matriz) {
+    const valores = [];
+    for (const linha of matriz.grade.children) {
+        const numeros = [];
+        for (const campo of linha.children) {
+            const valor = campo.value.trim();
+            const posicao = campo.getAttribute("aria-label");
+            if (valor === "") {
+                mostrarErro(posicao + ". Preencha este campo.", campo);
+                return null;
+            }
+            if (!numeroDecimal.test(valor)) {
+                mostrarErro(posicao + ". Digite um número com vírgula ou ponto para decimais.", campo);
+                return null;
+            }
+            numeros.push(valor);
+        }
+        valores.push(numeros);
+    }
+    return valores;
+}
+
+// Mostra o resultado e as contas que o servidor produziu.
+function exibirResultado(dados) {
+    tabelaC.replaceChildren();
+    listaPassos.replaceChildren();
+
+    for (const linha of dados.resultado_formatado) {
+        const linhaC = tabelaC.insertRow();
+        for (const valor of linha) {
+            linhaC.insertCell().textContent = valor;
+        }
+    }
+
+    for (const linha of dados.passos) {
+        for (const conta of linha) {
+            const item = document.createElement("li");
+            item.textContent = conta;
+            listaPassos.append(item);
+        }
+    }
+
+    dimensaoC.textContent = dados.resultado_formatado.length + " × " + dados.resultado_formatado[0].length;
+    dimensaoC.hidden = false;
+    situacao.textContent = "Resultado calculado.";
+    resultado.hidden = false;
+    document.querySelector("#titulo-c").focus();
+}
+
+formulario.addEventListener("submit", async evento => {
+    evento.preventDefault();
+    limparErro();
+    limparResultado(dica);
+
+    if (!atualizarCompatibilidade()) {
+        mostrarErro("Para calcular, iguale as colunas de A às linhas de B.", matrizes[1].linhas);
+        return;
+    }
+
+    const a = lerMatriz(matrizes[0]);
+    if (a === null) {
+        return;
+    }
+
+    const b = lerMatriz(matrizes[1]);
+    if (b === null) {
+        return;
+    }
+
+    // Cancela uma solicitação antiga se o usuário editar os dados.
+    const envio = new AbortController();
+    pedido = envio;
+    calcular.disabled = true;
+    calcular.textContent = "Calculando…";
+    situacao.textContent = "Calculando…";
+
+    try {
+        const resposta = await fetch("/api/calcular", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ a, b }),
+            signal: envio.signal
+        });
+        const dados = await resposta.json();
+
+        if (pedido !== envio) {
+            return;
+        }
+
+        if (resposta.ok) {
+            exibirResultado(dados);
+        } else {
+            situacao.textContent = dica;
+            mostrarErro(dados.erro);
+        }
+    } catch {
+        if (pedido === envio) {
+            situacao.textContent = dica;
+            mostrarErro("Não foi possível receber o cálculo. Confira se o servidor Python está em execução.");
+        }
+    } finally {
+        if (pedido === envio) {
+            pedido = null;
+            calcular.disabled = false;
+            calcular.textContent = "Calcular";
+        }
+    }
+});
+
+===== terminal.py =====
+LIMITE_DIMENSAO = 6
+INFINITO = float("inf")
+
+
+def converter_numero(valor):
+    # Aceita números com ponto ou vírgula decimal.
+    if type(valor) is str:
+        texto = valor.strip().replace(",", ".")
+        digitos = texto.lstrip("+-").replace(".", "", 1)
+        if not digitos.isdecimal():
+            raise ValueError("Digite um número com ponto ou vírgula decimal.")
+        try:
+            if "." in texto:
+                valor = float(texto)
+            else:
+                valor = int(texto)
+        except ValueError:
+            raise ValueError("Digite um número válido.") from None
+
+    if type(valor) not in (int, float) or not -INFINITO < valor < INFINITO:
+        raise ValueError("Digite um número finito.")
+    return valor
+
+
+def validar_matriz(matriz, nome):
+    # Confere dimensões, uniformidade e valores antes do cálculo.
+    if type(matriz) is not list or not 1 <= len(matriz) <= LIMITE_DIMENSAO:
+        raise ValueError(f"A matriz {nome} deve ter de 1 a {LIMITE_DIMENSAO} linhas.")
+    if type(matriz[0]) is not list or not 1 <= len(matriz[0]) <= LIMITE_DIMENSAO:
+        raise ValueError(f"A matriz {nome} deve ter de 1 a {LIMITE_DIMENSAO} colunas.")
+
+    colunas = len(matriz[0])
+    matriz_validada = []
+    for i, linha in enumerate(matriz):
+        if type(linha) is not list or len(linha) != colunas:
+            raise ValueError(f"Todas as linhas da matriz {nome} devem ter {colunas} colunas.")
+        linha_validada = []
+        for j, valor in enumerate(linha):
+            try:
+                linha_validada.append(converter_numero(valor))
+            except ValueError as erro:
+                raise ValueError(f"{nome}[{i + 1},{j + 1}]: {erro}") from None
+        matriz_validada.append(linha_validada)
+    return matriz_validada
+
+
+def multiplicar_matrizes(matriz_a, matriz_b):
+    matriz_a = validar_matriz(matriz_a, "A")
+    matriz_b = validar_matriz(matriz_b, "B")
+    linhas_a = len(matriz_a)
+    colunas_a = len(matriz_a[0])
+    linhas_b = len(matriz_b)
+    colunas_b = len(matriz_b[0])
+    if colunas_a != linhas_b:
+        raise ValueError(
+            "Dimensões incompatíveis. "
+            f"As colunas de A ({colunas_a}) devem corresponder às linhas de B ({linhas_b})."
+        )
+
+    resultado = []
+    # i escolhe uma linha de A e abre uma linha na matriz resultado.
+    for i in range(linhas_a):
+        linha_resultado = []
+        # j escolhe uma coluna de B e reinicia a soma para cada posição.
+        for j in range(colunas_b):
+            acumulador = 0
+            # k emparelha os elementos correspondentes da linha e da coluna.
+            for k in range(colunas_a):
+                try:
+                    acumulador += matriz_a[i][k] * matriz_b[k][j]
+                except OverflowError:
+                    raise ValueError("O cálculo excedeu o intervalo numérico.") from None
+            if not -INFINITO < acumulador < INFINITO:
+                raise ValueError("O cálculo excedeu o intervalo numérico.")
+            linha_resultado.append(acumulador)
+        resultado.append(linha_resultado)
+    return resultado
+
+
+def ler_dimensao(rotulo):
+    while True:
+        texto = input(f"{rotulo} (1 a {LIMITE_DIMENSAO}): ").strip()
+        if texto.isdecimal():
+            try:
+                dimensao = int(texto)
+                if 1 <= dimensao <= LIMITE_DIMENSAO:
+                    return dimensao
+            except ValueError:
+                pass
+        print(f"Digite um inteiro de 1 a {LIMITE_DIMENSAO}.")
+
+
+def ler_matriz(nome, linhas, colunas):
+    print(f"Preencha a matriz {nome} ({linhas} × {colunas}).")
+    matriz = []
+    for i in range(linhas):
+        linha = []
+        for j in range(colunas):
+            # Permite corrigir uma célula sem repetir as anteriores.
+            while True:
+                texto = input(f"{nome}[{i + 1},{j + 1}]: ")
+                try:
+                    linha.append(converter_numero(texto))
+                    break
+                except ValueError as erro:
+                    print(erro)
+        matriz.append(linha)
+    return matriz
+
+
+def exibir_matriz(nome, matriz):
+    # Ajusta a largura das células pelo maior valor exibido.
+    linhas_texto = []
+    largura = 0
+    for linha in matriz:
+        linha_texto = []
+        for valor in linha:
+            try:
+                texto = str(valor).replace(".", ",")
+            except ValueError:
+                raise ValueError("O número está fora do intervalo de exibição.") from None
+            linha_texto.append(texto)
+            if len(texto) > largura:
+                largura = len(texto)
+        linhas_texto.append(linha_texto)
+
+    print(f"\nMatriz {nome} ({len(matriz)} × {len(matriz[0])})")
+    for linha_texto in linhas_texto:
+        celulas = []
+        for texto in linha_texto:
+            celulas.append(texto.rjust(largura))
+        print("[ " + "  ".join(celulas) + " ]")
+
+
+def realizar_calculo():
+    linhas_a = ler_dimensao("Linhas de A")
+    colunas_a = ler_dimensao("Colunas de A")
+    linhas_b = ler_dimensao("Linhas de B")
+    colunas_b = ler_dimensao("Colunas de B")
+    if colunas_a != linhas_b:
+        raise ValueError(
+            "Dimensões incompatíveis. "
+            f"As colunas de A ({colunas_a}) devem corresponder às linhas de B ({linhas_b})."
+        )
+
+    matriz_a = ler_matriz("A", linhas_a, colunas_a)
+    matriz_b = ler_matriz("B", linhas_b, colunas_b)
+    resultado = multiplicar_matrizes(matriz_a, matriz_b)
+    exibir_matriz("A", matriz_a)
+    exibir_matriz("B", matriz_b)
+    exibir_matriz("C", resultado)
+
+
+def quer_continuar():
+    while True:
+        resposta = input("\nDeseja realizar outro cálculo? (s/n): ").strip().lower()
+        if resposta in ("s", "sim"):
+            return True
+        if resposta in ("n", "não", "nao"):
+            return False
+        print("Responda com s ou n.")
+
+
+def principal():
+    print("Multiplicação de Matrizes")
+    print("As colunas de A devem corresponder às linhas de B.")
+    try:
+        while True:
+            try:
+                realizar_calculo()
+            except ValueError as erro:
+                print(erro)
+            if not quer_continuar():
+                break
+    except (EOFError, KeyboardInterrupt):
+        print()
+    print("Programa encerrado.")
+
+
+if __name__ == "__main__":
+    principal()
+
+===== tests/test_calculo.py =====
+import subprocess
+import sys
+import unittest
+from pathlib import Path
+
+import calculo
+import terminal
+
+
+class TesteCalculo(unittest.TestCase):
+    def verificar_produto(self, matriz_a, matriz_b, esperado):
+        # Executa o mesmo caso nas duas implementações independentes.
+        resultado_web, _ = calculo.multiplicar_matrizes(matriz_a, matriz_b)
+        resultado_terminal = terminal.multiplicar_matrizes(matriz_a, matriz_b)
+        for nome, resultado in (("site", resultado_web), ("terminal", resultado_terminal)):
+            with self.subTest(implementacao=nome):
+                self.assertEqual(len(resultado), len(esperado))
+                for linha, linha_esperada in zip(resultado, esperado):
+                    self.assertEqual(len(linha), len(linha_esperada))
+                    for valor, valor_esperado in zip(linha, linha_esperada):
+                        self.assertAlmostEqual(valor, valor_esperado, delta=1e-9)
+
+    def verificar_entrada_invalida(self, matriz_a, matriz_b):
+        for modulo in (calculo, terminal):
+            with self.subTest(implementacao=modulo.__name__):
+                with self.assertRaises(ValueError):
+                    modulo.multiplicar_matrizes(matriz_a, matriz_b)
+
+    def test_exemplo_obrigatorio(self):
+        matriz_a = [[1, 2, 3], [4, 5, 6]]
+        matriz_b = [[7, 8], [9, 10], [11, 12]]
+        self.verificar_produto(matriz_a, matriz_b, [[58, 64], [139, 154]])
+
+    def test_detalhamento_dos_quatro_elementos(self):
+        matriz_a = [[1, 2, 3], [4, 5, 6]]
+        matriz_b = [[7, 8], [9, 10], [11, 12]]
+        _, passos = calculo.multiplicar_matrizes(matriz_a, matriz_b)
+        self.assertEqual(
+            passos,
+            [
+                [
+                    "C[1,1] = (1 × 7) + (2 × 9) + (3 × 11) = 58",
+                    "C[1,2] = (1 × 8) + (2 × 10) + (3 × 12) = 64",
+                ],
+                [
+                    "C[2,1] = (4 × 7) + (5 × 9) + (6 × 11) = 139",
+                    "C[2,2] = (4 × 8) + (5 × 10) + (6 × 12) = 154",
+                ],
+            ],
+        )
+
+    def test_identidade(self):
+        matriz = [[2, 3], [4, -5], [0, 1]]
+        identidade = [[1, 0], [0, 1]]
+        self.verificar_produto(matriz, identidade, matriz)
+
+    def test_matriz_zero(self):
+        self.verificar_produto([[1, 2], [3, 4]], [[0], [0]], [[0], [0]])
+
+    def test_retangulares_com_resultado_de_tamanho_distinto(self):
+        self.verificar_produto([[2], [-3]], [[4, 5, 0]], [[8, 10, 0], [-12, -15, 0]])
+
+    def test_um_por_um(self):
+        self.verificar_produto([[7]], [[-3]], [[-21]])
+
+    def test_negativos_e_decimais_com_virgula_e_ponto(self):
+        self.verificar_produto([["-0,1", "0.2"]], [[3], [1.5]], [[0]])
+        self.verificar_produto([["2,5", "-1.2"]], [[4], [0.5]], [[9.4]])
+
+    def test_dimensoes_incompativeis(self):
+        self.verificar_entrada_invalida([[1, 2]], [[3, 4]])
+
+    def test_estruturas_invalidas(self):
+        for matriz in ([], [[]], [1, 2], [[1], [2, 3]], None, {"linha": [1]}):
+            with self.subTest(matriz=matriz):
+                self.verificar_entrada_invalida(matriz, [[1]])
+                self.verificar_entrada_invalida([[1]], matriz)
+
+    def test_limite_de_seis_linhas_ou_colunas(self):
+        self.verificar_produto([[1, 2, 3, 4, 5, 6]], [[1], [1], [1], [1], [1], [1]], [[21]])
+        self.verificar_entrada_invalida([[1]] * 7, [[1]])
+        self.verificar_entrada_invalida([[1]], [[1] * 7])
+
+    def test_elementos_invalidos(self):
+        invalidos = (
+            "", "   ", "texto", "1.234,56", "1 234", None, True, [],
+            "NaN", "Infinity", float("nan"), float("inf"), float("-inf"),
+        )
+        for valor in invalidos:
+            with self.subTest(valor=valor):
+                self.verificar_entrada_invalida([[valor]], [[1]])
+                self.verificar_entrada_invalida([[1]], [[valor]])
+
+    def test_produto_fora_da_faixa_numerica(self):
+        self.verificar_entrada_invalida([[1e308]], [[10]])
+
+
+class TesteTerminal(unittest.TestCase):
+    def executar_terminal(self, dados):
+        pasta_projeto = Path(__file__).resolve().parents[1]
+        processo = subprocess.run(
+            [sys.executable, "-X", "utf8", str(pasta_projeto / "terminal.py")],
+            input=dados,
+            encoding="utf-8",
+            capture_output=True,
+            timeout=10,
+        )
+        self.assertEqual(processo.returncode, 0, processo.stderr)
+        return processo.stdout
+
+    def test_executa_o_exemplo_no_terminal(self):
+        # Dimensões de A e B, elementos em ordem de leitura e resposta para sair.
+        dados = "2\n3\n3\n2\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\nn\n"
+        saida = self.executar_terminal(dados)
+        self.assertIn("Matriz A (2 × 3)", saida)
+        self.assertIn("Matriz B (3 × 2)", saida)
+        self.assertIn("Matriz C (2 × 2)", saida)
+        self.assertRegex(saida, r"\[\s*58\s+64\s*\]")
+        self.assertRegex(saida, r"\[\s*139\s+154\s*\]")
+
+    def test_corrige_entradas_e_repete_calculo(self):
+        dados = (
+            "0\n1\n2\n1\n1\ns\n"  # Dimensão zero, depois A 1 × 2 e B 1 × 1.
+            "1\n1\n1\n1\ntexto\n2,5\n-3\ns\n"  # Corrige a célula de A e calcula.
+            "1\n1\n1\n1\n2\n4\nn\n"  # Repete e encerra.
+        )
+        saida = self.executar_terminal(dados)
+        self.assertIn("Digite um inteiro", saida)
+        self.assertIn("Dimensões incompatíveis", saida)
+        self.assertIn("Digite um número", saida)
+        self.assertEqual(saida.count("Matriz C (1 × 1)"), 2)
+        self.assertRegex(saida, r"\[\s*-7,5\s*\]")
+        self.assertRegex(saida, r"\[\s*8\s*\]")
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+===== tests/test_servidor.py =====
+import json
+import unittest
+from http.client import HTTPConnection
+from threading import Thread
+
+from servidor import LIMITE_REQUISICAO, criar_servidor
+
+
+class TesteServidor(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Porta 0 pede ao sistema uma porta livre, sem interferir no site aberto.
+        cls.servidor = criar_servidor(porta=0)
+        cls.addClassCleanup(cls.servidor.server_close)
+        cls.execucao = Thread(target=cls.servidor.serve_forever, daemon=True)
+        cls.execucao.start()
+        cls.addClassCleanup(cls.encerrar_execucao)
+
+    @classmethod
+    def encerrar_execucao(cls):
+        cls.servidor.shutdown()
+        cls.execucao.join(timeout=5)
+
+    def requisicao(self, metodo, caminho, corpo=None, tipo="application/json"):
+        endereco, porta = self.servidor.server_address
+        self.assertEqual(endereco, "127.0.0.1")
+        conexao = HTTPConnection(endereco, porta, timeout=5)
+        try:
+            conexao.request(metodo, caminho, corpo, {"Content-Type": tipo})
+            resposta = conexao.getresponse()
+            return resposta.status, resposta.getheader("Content-Type", ""), resposta.read()
+        finally:
+            conexao.close()
+
+    def verificar_erro(self, corpo, tipo="application/json", status_esperado=400):
+        status, tipo_resposta, resposta = self.requisicao("POST", "/api/calcular", corpo, tipo)
+        self.assertEqual(status, status_esperado, resposta)
+        self.assertIn("application/json", tipo_resposta)
+        mensagem = json.loads(resposta)["erro"]
+        self.assertIsInstance(mensagem, str)
+        self.assertTrue(mensagem.strip())
+        self.assertNotIn("Traceback", mensagem)
+
+    def test_entrega_arquivos_da_interface(self):
+        arquivos = (
+            ("/", "text/html", "Multiplicação de Matrizes"),
+            ("/estilo.css", "text/css", None),
+            ("/interface.js", "javascript", "/api/calcular"),
+            ("/apresentacao/", "text/html", "Multiplicação de Matrizes | Apresentação"),
+            ("/apresentacao/estilo.css", "text/css", "@media print"),
+            ("/apresentacao/apresentacao.js", "javascript", None),
+        )
+        for caminho, mime, trecho in arquivos:
+            with self.subTest(caminho=caminho):
+                status, tipo, corpo = self.requisicao("GET", caminho)
+                self.assertEqual(status, 200)
+                self.assertIn(mime, tipo)
+                self.assertTrue(corpo.strip())
+                if trecho is not None:
+                    self.assertIn(trecho, corpo.decode("utf-8"))
+
+    def test_api_calcula_exemplo_e_envia_detalhamento(self):
+        dados = {"a": [[1, 2, 3], [4, 5, 6]], "b": [[7, 8], [9, 10], [11, 12]]}
+        status, tipo, corpo = self.requisicao("POST", "/api/calcular", json.dumps(dados))
+        self.assertEqual(status, 200)
+        self.assertIn("application/json", tipo)
+        dados = json.loads(corpo)
+        self.assertEqual(dados["resultado"], [[58, 64], [139, 154]])
+        self.assertEqual(dados["passos"][0][0], "C[1,1] = (1 × 7) + (2 × 9) + (3 × 11) = 58")
+
+    def test_api_aceita_decimais_em_texto(self):
+        dados = {"a": [["-2,5", "3.1"]], "b": [["4"], ["2"]]}
+        status, _, resposta = self.requisicao("POST", "/api/calcular", json.dumps(dados))
+        self.assertEqual(status, 200)
+        dados = json.loads(resposta)
+        self.assertAlmostEqual(dados["resultado"][0][0], -3.8, delta=1e-9)
+        self.assertEqual(dados["resultado_formatado"], [["-3,8"]])
+
+    def test_api_rejeita_json_malformado(self):
+        for corpo in (b"{", b"\xff", b"", b'"matrizes"', b'{"a": [[1]]}'):
+            with self.subTest(corpo=corpo):
+                self.verificar_erro(corpo)
+
+    def test_api_rejeita_tipo_de_conteudo_invalido(self):
+        self.verificar_erro(b"a=1&b=2", tipo="text/plain", status_esperado=415)
+
+    def test_api_rejeita_corpo_acima_do_limite(self):
+        self.verificar_erro(b" " * (LIMITE_REQUISICAO + 1), status_esperado=413)
+
+    def test_api_rejeita_matrizes_invalidas(self):
+        casos = (
+            {"a": [[1, 2]], "b": [[3]]},
+            {"a": [[1, 2], [3]], "b": [[4], [5]]},
+            {"a": [[""]], "b": [[1]]},
+            {"a": [[1]] * 7, "b": [[1]]},
+            {"a": [[float("inf")]], "b": [[1]]},
+        )
+        for dados in casos:
+            with self.subTest(dados=dados):
+                self.verificar_erro(json.dumps(dados))
+
+
+if __name__ == "__main__":
+    unittest.main()
