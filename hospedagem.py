@@ -21,7 +21,7 @@ def aplicacao(ambiente, iniciar_resposta):
         status, tipo, conteudo = resposta_json(405, {"erro": "Método não permitido."})
 
     cabecalhos = [
-        ("Content-Type", f"{tipo}; charset=utf-8"),
+        ("Content-Type", tipo),
         ("Content-Length", str(len(conteudo))),
         ("X-Content-Type-Options", "nosniff"),
     ]

@@ -50,7 +50,7 @@ class TesteHospedagem(unittest.TestCase):
         status, cabecalhos, resposta = self.requisicao("GET", "/")
         self.assertEqual(status, 200)
         self.assertIn("text/html", cabecalhos["Content-Type"])
-        self.assertIn("Multiplicação de Matrizes", resposta.decode("utf-8"))
+        self.assertIn("MatrizLab · Multiplicação de matrizes", resposta.decode("utf-8"))
 
     def test_calcula_exemplo_e_entrega_passos(self):
         dados = {"a": [[1, 2, 3], [4, 5, 6]], "b": [[7, 8], [9, 10], [11, 12]]}

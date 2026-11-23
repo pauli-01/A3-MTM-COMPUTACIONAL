@@ -14,9 +14,21 @@ LIMITE_REQUISICAO = 16_384  # bytes
 
 # Só estes arquivos são publicados pelo servidor.
 ARQUIVOS = {
-    "/": ("site/index.html", "text/html"),
-    "/estilo.css": ("site/estilo.css", "text/css"),
-    "/interface.js": ("site/interface.js", "text/javascript"),
+    "/": ("dist/index.html", "text/html"),
+    "/app.js": ("dist/app.js", "text/javascript"),
+    "/config.json": ("dist/config.json", "application/json"),
+    "/favicon.svg": ("dist/favicon.svg", "image/svg+xml"),
+    "/matrizes.py": ("dist/matrizes.py", "text/plain"),
+    "/python-client.js": ("dist/python-client.js", "text/javascript"),
+    "/python-worker.js": ("dist/python-worker.js", "text/javascript"),
+    "/style.css": ("dist/style.css", "text/css"),
+    "/runtime/pyodide.mjs": ("dist/runtime/pyodide.mjs", "text/javascript"),
+    "/runtime/pyodide.asm.mjs": ("dist/runtime/pyodide.asm.mjs", "text/javascript"),
+    "/runtime/pyodide.asm.wasm": ("dist/runtime/pyodide.asm.wasm", "application/wasm"),
+    "/runtime/pyodide-lock.json": ("dist/runtime/pyodide-lock.json", "application/json"),
+    "/runtime/python_stdlib.zip": ("dist/runtime/python_stdlib.zip", "application/zip"),
+    "/runtime/LICENSE-MPL-2.0.txt": ("dist/runtime/LICENSE-MPL-2.0.txt", "text/plain"),
+    "/runtime/NOTICE.txt": ("dist/runtime/NOTICE.txt", "text/plain"),
     "/apresentacao/": ("apresentacao/index.html", "text/html"),
     "/apresentacao/estilo.css": ("apresentacao/estilo.css", "text/css"),
     "/apresentacao/apresentacao.js": (
@@ -27,7 +39,7 @@ ARQUIVOS = {
 
 def resposta_json(status, dados):
     conteudo = json.dumps(dados, ensure_ascii=False, allow_nan=False)
-    return status, "application/json", conteudo.encode("utf-8")
+    return status, "application/json; charset=utf-8", conteudo.encode("utf-8")
 
 
 def servir_arquivo(rota):
@@ -39,6 +51,8 @@ def servir_arquivo(rota):
         conteudo = (PASTA_PROJETO / caminho).read_bytes()
     except OSError:
         return resposta_json(500, {"erro": "Não foi possível abrir o arquivo."})
+    if tipo.startswith("text/") or tipo == "application/json":
+        tipo += "; charset=utf-8"
     return 200, tipo, conteudo
 
 
@@ -93,7 +107,7 @@ class ServidorMatrizes(BaseHTTPRequestHandler):
 
     def responder(self, status, tipo, conteudo):
         self.send_response(status)
-        self.send_header("Content-Type", f"{tipo}; charset=utf-8")
+        self.send_header("Content-Type", tipo)
         self.send_header("Content-Length", str(len(conteudo)))
         self.end_headers()
         self.wfile.write(conteudo)

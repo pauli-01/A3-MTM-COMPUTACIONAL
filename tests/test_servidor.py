@@ -43,9 +43,14 @@ class TesteServidor(unittest.TestCase):
 
     def test_entrega_arquivos_da_interface(self):
         arquivos = (
-            ("/", "text/html", "Multiplicação de Matrizes"),
-            ("/estilo.css", "text/css", None),
-            ("/interface.js", "javascript", "/api/calcular"),
+            ("/", "text/html", "MatrizLab · Multiplicação de matrizes"),
+            ("/style.css", "text/css", None),
+            ("/app.js", "javascript", "./python-client.js"),
+            ("/config.json", "application/json", '"mode":"browser"'),
+            ("/python-worker.js", "javascript", "loadPyodide"),
+            ("/matrizes.py", "text/plain", "def multiplicar_matrizes("),
+            ("/runtime/pyodide.asm.wasm", "application/wasm", None),
+            ("/runtime/python_stdlib.zip", "application/zip", None),
             ("/apresentacao/", "text/html", "Multiplicação de Matrizes | Apresentação"),
             ("/apresentacao/estilo.css", "text/css", "@media print"),
             ("/apresentacao/apresentacao.js", "javascript", None),
