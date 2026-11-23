@@ -1,9 +1,0 @@
-Python no navegador: Pyodide 314.0.8 (arquivos oficiais, sem modificações).
-Projeto e código-fonte: https://github.com/pyodide/pyodide
-Distribuição: https://www.npmjs.com/package/pyodide/v/314.0.8
-Documentação: https://pyodide.org/en/stable/
-Pyodide é distribuído sob Mozilla Public License 2.0.
-Texto da licença: https://www.mozilla.org/en-US/MPL/2.0/
-O interpretador Python e sua biblioteca padrão seguem a licença PSF:
-https://docs.python.org/3/license.html
-O núcleo matemático deste trabalho é dist/matrizes.py, separado do interpretador.

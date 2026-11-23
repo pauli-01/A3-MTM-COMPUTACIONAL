@@ -1,8 +1,0 @@
-services:
-  - type: web
-    name: a3-mtm-computacional
-    runtime: python
-    plan: free
-    buildCommand: python -m pip install gunicorn==27.0.1
-    startCommand: gunicorn --bind 0.0.0.0:$PORT hospedagem:aplicacao
-    healthCheckPath: /
