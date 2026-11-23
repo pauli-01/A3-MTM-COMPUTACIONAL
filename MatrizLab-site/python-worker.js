@@ -3,10 +3,10 @@ import { loadPyodide } from './runtime/pyodide.mjs';
 
 const ready = (async () => {
   const pyodide = await loadPyodide({indexURL: new URL('./runtime/', import.meta.url).href});
-  const response = await fetch(new URL('./matrizes.py', import.meta.url));
+  const response = await fetch(new URL('./cod-mult-matriz.py', import.meta.url));
   if (!response.ok) throw new Error('Código Python indisponível.');
   pyodide.runPython(await response.text());
-  // JSON só transporta os dados. O algoritmo está no arquivo matrizes.py.
+  // JSON só transporta os dados. O algoritmo está no arquivo cod-mult-matriz.py.
   pyodide.runPython(`
 import json
 

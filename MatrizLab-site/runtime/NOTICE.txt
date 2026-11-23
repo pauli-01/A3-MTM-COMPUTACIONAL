@@ -6,4 +6,4 @@ Pyodide é distribuído sob Mozilla Public License 2.0.
 Texto da licença: https://www.mozilla.org/en-US/MPL/2.0/
 O interpretador Python e sua biblioteca padrão seguem a licença PSF:
 https://docs.python.org/3/license.html
-O núcleo matemático deste trabalho é MatrizLab-site/matrizes.py, separado do interpretador.
+O núcleo matemático deste trabalho é MatrizLab-site/cod-mult-matriz.py, separado do interpretador.
