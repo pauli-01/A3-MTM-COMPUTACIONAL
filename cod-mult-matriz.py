@@ -1,6 +1,3 @@
-"""Multiplicação de matrizes — núcleo matemático, sem importar bibliotecas."""
-
-
 def formatar_numero(numero):
     """Prepara um número para a tela, com até 12 algarismos significativos."""
     if numero == int(numero):
