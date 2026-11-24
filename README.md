@@ -8,7 +8,7 @@ Projeto da A3 de Matemática Computacional da Unisul. O MatrizLab multiplica dua
 
 1. Escolha as dimensões de A e B e preencha os valores. O número de colunas de A deve ser igual ao número de linhas de B.
 2. Clique em **Calcular A × B** e selecione um valor da matriz C para ver sua conta.
-3. Para testar com os dados da apresentação, selecione **Básico** e clique em **Carregar exemplo**.
+3. Para testar com os dados da apresentação, clique em **Carregar exemplo**. O site preenche as matrizes e calcula o resultado.
 
 ```text
 A = [[1, 2, 3], [4, 5, 6]]

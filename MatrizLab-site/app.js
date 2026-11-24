@@ -1,7 +1,7 @@
 // A interface coleta os dados e desenha a explicação. Todo cálculo vem do Python.
 import { PythonClient } from './python-client.js';
 const $ = (id) => document.getElementById(id);
-let example = {a: [[1, 2, 3], [4, 5, 6]], b: [[7, 8], [9, 10], [11, 12]]};
+const example = {a: [[1, 2, 3], [4, 5, 6]], b: [[7, 8], [9, 10], [11, 12]]};
 const state = {a: [], b: [], response: null, selected: 0, revision: 0, apiBase: '', mode: 'browser', configReady: false};
 let guideIndex = null;
 let calculating = false;
@@ -263,7 +263,7 @@ function showStep() {
   renderGuide();
 }
 
-$('example').addEventListener('click', chooseExample);
+$('example').addEventListener('click', loadExample);
 $('clear').addEventListener('click', () => {
   invalidate();
   for (const matrix of ['a', 'b']) {
@@ -308,15 +308,6 @@ function focusInvalidField(message) {
   const field = match && $(`cell-${match[1].toLowerCase()}-${Number(match[2])-1}-${Number(match[3])-1}`);
   if (field) {field.classList.add('invalid-cell');field.setAttribute('aria-invalid','true');field.setAttribute('aria-describedby','error');field.focus();}
   else $('error').focus();
-}
-function chooseExample() {
-  const examples = {
-    basic: {a:[[1,2,3],[4,5,6]],b:[[7,8],[9,10],[11,12]],note:'Cada elemento de C combina uma linha de A com uma coluna de B.'},
-    identity: {a:[[2,5],[-3,4]],b:[[1,0],[0,1]],note:'A × I = A: multiplicar pela identidade preserva a matriz A.'},
-    negative: {a:[[-2,'1,5'],[3,-4]],b:[[2,-1],[4,'0,5']],note:'Observe os sinais dos produtos. Vírgula e ponto são aceitos nos decimais.'},
-    invalid: {a:[[1,2,3],[4,5,6]],b:[[1,0],[0,1]],note:'Por que não funciona? A tem 3 colunas e B tem 2 linhas. Ajuste as dimensões para continuar.'}
-  };
-  example=examples[$('example-kind').value];loadExample();$('example-note').textContent=example.note;
 }
 function renderGuide() {
   const terms=state.response.passos[state.selected].termos;
