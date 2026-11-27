@@ -2,31 +2,35 @@
 
 
 def contar(itens):
-    """Conta os elementos de uma sequência com um laço."""
-    quantidade = 0
+    # Somo 1 para cada item que encontro na lista.
+    total = 0
     for item in itens:
-        quantidade += 1
-    return quantidade
+        total += 1
+    return total
 
 
 def validar_matriz(matriz):
-    """Retorna as dimensões e uma mensagem se a matriz for inválida."""
+    limite = 1_000_000_000_000
+
     try:
         linhas = contar(matriz)
         if linhas < 1 or linhas > 6:
             return None, "A matriz precisa ter de 1 a 6 linhas."
 
+        # A primeira linha serve de referência para as outras.
         colunas = contar(matriz[0])
         if colunas < 1 or colunas > 6:
             return None, "A matriz precisa ter de 1 a 6 colunas."
 
         for linha in matriz:
-            if contar(linha) != colunas:
+            tamanho_da_linha = contar(linha)
+            if tamanho_da_linha != colunas:
                 return None, "Todas as linhas precisam ter o mesmo tamanho."
-            for valor in linha:
-                if valor is True or valor is False:
+
+            for numero in linha:
+                if numero is True or numero is False:
                     return None, "Preencha a matriz com valores numéricos."
-                if not -1_000_000_000_000 <= valor <= 1_000_000_000_000:
+                if not (-limite <= numero <= limite):
                     return None, "Use valores entre -1 trilhão e 1 trilhão."
     except (TypeError, IndexError, KeyError):
         return None, "Use uma lista de linhas preenchidas com números."
@@ -35,14 +39,13 @@ def validar_matriz(matriz):
 
 
 def multiplicar_matrizes(a, b):
-    """Calcula C = A × B e guarda a conta de cada posição."""
-    dimensoes_a, erro_a = validar_matriz(a)
-    if erro_a:
-        return {"erro": "Matriz A. " + erro_a}
+    dimensoes_a, erro = validar_matriz(a)
+    if erro:
+        return {"erro": "Matriz A. " + erro}
 
-    dimensoes_b, erro_b = validar_matriz(b)
-    if erro_b:
-        return {"erro": "Matriz B. " + erro_b}
+    dimensoes_b, erro = validar_matriz(b)
+    if erro:
+        return {"erro": "Matriz B. " + erro}
 
     linhas_a, colunas_a = dimensoes_a
     linhas_b, colunas_b = dimensoes_b
@@ -51,38 +54,49 @@ def multiplicar_matrizes(a, b):
 
     resultado = []
     passos = []
+
+    # i é a linha de A que estou usando.
     i = 0
     while i < linhas_a:
-        linha_c = []
+        linha_a = a[i]
+        linha_resultado = []
+
+        # j é a coluna de B que estou usando.
         j = 0
         while j < colunas_b:
-            total = 0
+            # Cada posição de C começa com uma soma nova.
+            soma = 0
             termos = []
-            k = 0
 
+            # k anda na linha de A e na coluna de B ao mesmo tempo.
+            k = 0
             while k < colunas_a:
-                valor_a = a[i][k]
+                valor_a = linha_a[k]
                 valor_b = b[k][j]
                 produto = valor_a * valor_b
-                total += produto
-                termos += [{
+                soma += produto
+
+                conta_do_par = {
                     "a": valor_a,
                     "b": valor_b,
                     "produto": produto,
-                    "acumulado": total,
-                }]
+                    "acumulado": soma,
+                }
+                termos += [conta_do_par]
                 k += 1
 
-            linha_c += [total]
-            passos += [{
+            # Guardo a soma na matriz e a conta para mostrar no site.
+            linha_resultado += [soma]
+            conta_da_posicao = {
                 "linha": i + 1,
                 "coluna": j + 1,
                 "termos": termos,
-                "valor": total,
-            }]
+                "valor": soma,
+            }
+            passos += [conta_da_posicao]
             j += 1
 
-        resultado += [linha_c]
+        resultado += [linha_resultado]
         i += 1
 
     return {
