@@ -1,113 +1,97 @@
-def formatar_numero(numero):
-    """Prepara um número para a tela, com até 12 algarismos significativos."""
-    if numero == int(numero):
-        return str(int(numero))
-    return format(numero, ".12g").replace(".", ",")
+"""MatrizLab A3 — Multiplicação de matrizes em Python."""
 
 
-def ler_numero(valor, nome, linha, coluna):
-    """Aceita números decimais com vírgula ou ponto e rejeita dados inválidos."""
-    local = f"Matriz {nome}, linha {linha + 1}, coluna {coluna + 1}"
-    if isinstance(valor, bool) or not isinstance(valor, (str, int, float)):
-        raise ValueError(f"{local}: digite um número válido.")
-    if isinstance(valor, str):
-        texto = valor.strip().replace(",", ".")
-        if not texto:
-            raise ValueError(f"{local}: preencha este campo.")
-        if texto[0] in "+-":
-            texto = texto[1:]
-        pontos = 0
-        digitos = 0
-        for caractere in texto:
-            if caractere == ".":
-                pontos += 1
-            elif caractere in "0123456789":
-                digitos += 1
-            else:
-                raise ValueError(f"{local}: use números, com vírgula ou ponto decimal.")
-        if pontos > 1 or digitos == 0:
-            raise ValueError(f"{local}: digite um número válido.")
+def contar(itens):
+    """Conta os elementos de uma sequência com um laço."""
+    quantidade = 0
+    for item in itens:
+        quantidade += 1
+    return quantidade
+
+
+def validar_matriz(matriz):
+    """Retorna as dimensões e uma mensagem se a matriz for inválida."""
     try:
-        numero = float(str(valor).strip().replace(",", "."))
-    except (ValueError, OverflowError):
-        raise ValueError(f"{local}: digite um número válido.") from None
-    # O limite mantém o demonstrador legível e evita valores infinitos.
-    if numero != numero or numero < -1_000_000_000_000 or numero > 1_000_000_000_000:
-        raise ValueError(f"{local}: use um número entre −1 trilhão e 1 trilhão.")
-    return numero
+        linhas = contar(matriz)
+        if linhas < 1 or linhas > 6:
+            return None, "A matriz precisa ter de 1 a 6 linhas."
+
+        colunas = contar(matriz[0])
+        if colunas < 1 or colunas > 6:
+            return None, "A matriz precisa ter de 1 a 6 colunas."
+
+        for linha in matriz:
+            if contar(linha) != colunas:
+                return None, "Todas as linhas precisam ter o mesmo tamanho."
+            for valor in linha:
+                if valor is True or valor is False:
+                    return None, "Preencha a matriz com valores numéricos."
+                if not -1_000_000_000_000 <= valor <= 1_000_000_000_000:
+                    return None, "Use valores entre -1 trilhão e 1 trilhão."
+    except (TypeError, IndexError, KeyError):
+        return None, "Use uma lista de linhas preenchidas com números."
+
+    return [linhas, colunas], None
 
 
-def validar_matriz(matriz, nome):
-    """Confere tamanho, formato retangular e valores de uma matriz."""
-    if not isinstance(matriz, list) or not 1 <= len(matriz) <= 6:
-        raise ValueError(f"A matriz {nome} deve ter de 1 a 6 linhas.")
-    if not isinstance(matriz[0], list) or not 1 <= len(matriz[0]) <= 6:
-        raise ValueError(f"A matriz {nome} deve ter de 1 a 6 colunas.")
-    colunas = len(matriz[0])
-    validada = []
-    for i in range(len(matriz)):
-        if not isinstance(matriz[i], list) or len(matriz[i]) != colunas:
-            raise ValueError(f"Todas as linhas da matriz {nome} devem ter o mesmo tamanho.")
-        linha = []
-        for j in range(colunas):
-            linha.append(ler_numero(matriz[i][j], nome, i, j))
-        validada.append(linha)
-    return validada
+def multiplicar_matrizes(a, b):
+    """Calcula C = A × B e guarda a conta de cada posição."""
+    dimensoes_a, erro_a = validar_matriz(a)
+    if erro_a:
+        return {"erro": "Matriz A. " + erro_a}
 
+    dimensoes_b, erro_b = validar_matriz(b)
+    if erro_b:
+        return {"erro": "Matriz B. " + erro_b}
 
-def multiplicar_matrizes(matriz_a, matriz_b):
-    """Calcula A × B e registra a explicação de cada elemento do resultado."""
-    a = validar_matriz(matriz_a, "A")
-    b = validar_matriz(matriz_b, "B")
-    linhas_a = len(a)
-    colunas_a = len(a[0])
-    linhas_b = len(b)
-    colunas_b = len(b[0])
-
-    # A multiplicação só existe quando colunas de A = linhas de B.
+    linhas_a, colunas_a = dimensoes_a
+    linhas_b, colunas_b = dimensoes_b
     if colunas_a != linhas_b:
-        raise ValueError(
-            f"Não é possível multiplicar: A tem {colunas_a} coluna(s), "
-            f"mas B tem {linhas_b} linha(s). Esses números precisam ser iguais."
-        )
+        return {"erro": "O número de colunas de A deve ser igual ao de linhas de B."}
 
     resultado = []
     passos = []
-    # i escolhe a linha de A e também a linha do resultado C.
-    for i in range(linhas_a):
-        linha_resultado = []
-        # j escolhe a coluna de B e também a coluna do resultado C.
-        for j in range(colunas_b):
+    i = 0
+    while i < linhas_a:
+        linha_c = []
+        j = 0
+        while j < colunas_b:
             total = 0
             termos = []
-            expressao = ""
-            # k percorre os pares da linha de A com a coluna de B.
-            for k in range(colunas_a):
-                produto = a[i][k] * b[k][j]
-                total += produto
-                termos.append({
-                    "a": formatar_numero(a[i][k]),
-                    "b": formatar_numero(b[k][j]),
-                    "produto": formatar_numero(produto),
-                    "acumulado": formatar_numero(total),
-                })
-                if k > 0:
-                    expressao += " + "
-                expressao += f"({formatar_numero(a[i][k])} × {formatar_numero(b[k][j])})"
+            k = 0
 
-            # Após somar todos os produtos, guardamos C[i][j].
-            linha_resultado.append(total)
-            passos.append({
+            while k < colunas_a:
+                valor_a = a[i][k]
+                valor_b = b[k][j]
+                produto = valor_a * valor_b
+                total += produto
+                termos += [{
+                    "a": valor_a,
+                    "b": valor_b,
+                    "produto": produto,
+                    "acumulado": total,
+                }]
+                k += 1
+
+            linha_c += [total]
+            passos += [{
                 "linha": i + 1,
                 "coluna": j + 1,
                 "termos": termos,
-                "valor": formatar_numero(total),
-                "expressao": expressao + " = " + formatar_numero(total),
-            })
-        resultado.append(linha_resultado)
+                "valor": total,
+            }]
+            j += 1
+
+        resultado += [linha_c]
+        i += 1
 
     return {
         "resultado": resultado,
         "passos": passos,
-        "dimensoes": {"a": [linhas_a, colunas_a], "b": [linhas_b, colunas_b], "c": [linhas_a, colunas_b]},
+        "dimensoes": {"a": dimensoes_a, "b": dimensoes_b, "c": [linhas_a, colunas_b]},
     }
+
+
+A = [[1, 2, 3], [4, 5, 6]]
+B = [[7, 8], [9, 10], [11, 12]]
+exemplo = multiplicar_matrizes(A, B)

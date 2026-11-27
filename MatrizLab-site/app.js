@@ -339,7 +339,7 @@ $('copy-result').addEventListener('click',async()=>{
 });
 $('download').addEventListener('click',()=>{
   if(!state.response)return;
-  const text=['MatrizLab - Multiplicação de matrizes','Matriz A:',...state.a.map(r=>r.join('  ')),'','Matriz B:',...state.b.map(r=>r.join('  ')),'','Cálculos de C:',...state.response.passos.map(s=>`C[${s.linha}, ${s.coluna}]: ${s.expressao}`),'','Valores exibidos com até 12 algarismos significativos.'].join('\n');
+  const text=['MatrizLab - Multiplicação de matrizes','Matriz A:',...state.a.map(r=>r.join('  ')),'','Matriz B:',...state.b.map(r=>r.join('  ')),'','Cálculos de C:',...state.response.passos.map(s=>`C[${s.linha}, ${s.coluna}]: ${s.expressao}`),'','Resultados fracionários são exibidos com até 12 algarismos significativos.'].join('\n');
   const url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));
   const link=document.createElement('a');link.href=url;link.download='MatrizLab-calculos.txt';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   $('export-status').textContent='Arquivo de cálculos preparado.';

@@ -16,7 +16,7 @@ B = [[7, 8], [9, 10], [11, 12]]
 C = [[58, 64], [139, 154]]
 ```
 
-O cálculo é feito em Python com três laços, sem NumPy. O primeiro laço escolhe uma linha de A, o segundo escolhe uma coluna de B e o terceiro multiplica os pares e soma os produtos. O Pyodide executa o código Python no navegador.
+O cálculo é feito em Python com três laços, sem imports nem chamadas a funções ou métodos predefinidos. O primeiro laço escolhe uma linha de A, o segundo escolhe uma coluna de B e o terceiro multiplica os pares e soma os produtos. O Pyodide executa o código Python no navegador. O JavaScript converte os valores digitados e formata o resultado para exibição.
 
 ## Como abrir localmente
 
@@ -39,4 +39,4 @@ Com o terminal aberto, acesse [http://127.0.0.1:4173/](http://127.0.0.1:4173/). 
 ## Arquivos do projeto
 
 - A pasta [`MatrizLab-site/`](MatrizLab-site/) contém a interface e o Pyodide.
-- O arquivo [`cod-mult-matriz.py`](cod-mult-matriz.py) na raiz deixa o algoritmo disponível para leitura. O site executa [`MatrizLab-site/cod-mult-matriz.py`](MatrizLab-site/cod-mult-matriz.py).
+- O arquivo [`cod-mult-matriz.py`](cod-mult-matriz.py) na raiz pode ser usado no console do Python. O site executa uma cópia idêntica em [`MatrizLab-site/cod-mult-matriz.py`](MatrizLab-site/cod-mult-matriz.py).
